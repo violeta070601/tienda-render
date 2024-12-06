@@ -8,6 +8,7 @@ from rest_framework import status
 from .serializers import ClienteSerializer
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from rest_framework.permissions import IsAuthenticated
@@ -37,16 +38,16 @@ class ProductoViewSet(viewsets.ModelViewSet):
     serializer_class = ProductoSerializer
 
 #Vista del login
-def login_view(request):
+def loginView(request):
     # Verificar si el usuario ya está autenticado
     if request.user.is_authenticated:
         # Redirigir según el rol del usuario
         if hasattr(request.user, 'cliente'):
-            return redirect('inicioCliente')
+            return redirect('homeCliente')
         elif hasattr(request.user, 'vendedor'):
-            return redirect('inicioVendedor')
+            return redirect('homeVendedor')
         elif hasattr(request.user, 'admin'):
-            return redirect('inicioAdmin')
+            return redirect('homeAdmin')
         else:
             return redirect('login')  # Si no tiene rol asignado, redirigir al login
 
@@ -59,19 +60,18 @@ def login_view(request):
 
             # Redirigir al usuario según su rol
             if hasattr(user, 'cliente'):
-                return redirect('inicioCliente')
+                return redirect('homeCliente')
             elif hasattr(user, 'vendedor'):
-                return redirect('inicioVendedor')
+                return redirect('homeVendedor')
             elif hasattr(user, 'admin'):
-                return redirect('inicioAdmin')
+                return redirect('homeAdmin')
             else:
                 return redirect('login')  # Si no tiene rol asignado, redirigir al login
         else:
+            messages.error(request, 'Credenciales incorrectas')
             return render(request, 'login.html', {'error': 'Credenciales incorrectas'})
 
     return render(request, 'login.html')  # Mostrar el formulario de login
-
-
 
 def redirect_to_login(request):
     return redirect('login')
@@ -88,6 +88,16 @@ def inicioVendedor(request):
 @login_required
 def inicioAdmin(request):
     return render(request, 'administrador/inicioAdmin.html')
+
+def registro_cliente(request):
+    if request.method == 'POST':    
+        pass
+    return render(request, 'registros/registroCliente.html')
+
+def registro_vendedor(request):
+    if request.method == 'POST':    
+        pass
+    return render(request, 'registros/registroVendedor.html')
 
 class RolViewSet(viewsets.ModelViewSet):
     queryset = Rol.objects.all()

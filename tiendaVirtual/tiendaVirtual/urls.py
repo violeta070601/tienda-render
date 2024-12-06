@@ -20,5 +20,5 @@ from django.shortcuts import redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('tienda.urls')),  # Incluye las URLs de la app 'tienda'
+    path('', include('tienda.urls')),   # Incluye las URLs de la app 'tienda'
 ]
