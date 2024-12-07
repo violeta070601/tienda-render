@@ -5,16 +5,13 @@ from .views import RolViewSet, UsuarioViewSet, CategoriaViewSet
 from . import views
 
 router = DefaultRouter()
-router.register(r'roles', RolViewSet)
-router.register(r'usuarios', UsuarioViewSet)
-router.register(r'categorias', CategoriaViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('login/', views.login_view, name='login'),
+    path('', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('homeAdmin/', views.homeAdmin, name='homeAdmin'),
     path('homeVendedor/', views.homeVendedor, name='homeVendedor'),
     path('homeCliente/', views.homeCliente, name='homeCliente'),
     path('prueba/', views.prueba, name='prueba'),
+    path('super/', include(router.urls)),
 ]
