@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser, BaseUserManager
 
 # Modelo de Rol
 class Rol(models.Model):
@@ -29,7 +29,7 @@ class UsuarioManager(BaseUserManager):
         return self.create_user(correo, usuario, password, **extra_fields)
 
 # Modelo Usuario personalizado
-class Usuario(AbstractBaseUser):
+class Usuario(AbstractBaseUser, PermissionsMixin):
     nombre = models.CharField(max_length=50)
     aPaterno = models.CharField(max_length=50)
     aMaterno = models.CharField(max_length=50)
