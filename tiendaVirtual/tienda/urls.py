@@ -10,7 +10,10 @@ router.register(r'home/productos', views.ProductoViewSet)
 
 urlpatterns = [
     path('', views.loginView, name='login'),
-    path('registro-cliente/', views.registroCliente, name='registroCliente'),
+    path('registro-cliente/', views.RegistroClienteViewSet.as_view({'post': 'create'}), name='registroCliente'),
     path('registro-vendedor/', views.RegistroVendedorViewSet.as_view({'post': 'create'}), name='registroVendedor'),
+    path('homeCliente/', views.homeCliente, name='homeCliente'),
+    path('homeVendedor/', views.homeVendedor, name='homeVendedor'),
+    path('homeAdmin/', views.homeAdmin, name='homeAdmin'),
     path('', include(router.urls)),
 ]

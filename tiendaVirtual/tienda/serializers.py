@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Rol, Cliente, Vendedor, Administrador, Categoria, Producto
+from django.contrib.auth.models import User
+from rest_framework.exceptions import ValidationError
 
 class RolSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,26 +11,24 @@ class RolSerializer(serializers.ModelSerializer):
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
-        fields = ['id_cliente', 'nombre', 'aPaterno', 'aMaterno', 'telefono', 'correo', 'usuario', 'password']
+        fields = ['id_cliente', 'nombre', 'aPaterno', 'aMaterno', 'telefono', 'correo', 'usuario', 'password', 'rol']
 
     def create(self, validated_data):
         validated_data['rol_id'] = 3
-
-        # Crear el cliente sin la contraseña encriptada
+        # Crear el vendedor sin la contraseña encriptada
         cliente = Cliente(**validated_data)
-        
-        
+
         # Llamar al método set_password para encriptar la contraseña antes de guardarla
         cliente.set_password(validated_data['password'])
 
-        # Guardar el cliente en la base de datos
+        # Guardar el vendedor en la base de datos
         cliente.save()
         return cliente
 
 class VendedorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vendedor
-        exclude = ['rol']
+        fields = '__all__'
 
     def create(self, validated_data):
         validated_data['rol_id'] = 2

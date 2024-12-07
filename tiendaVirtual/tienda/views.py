@@ -47,7 +47,7 @@ def loginView(request):
             return redirect('homeCliente')
         elif hasattr(request.user, 'vendedor'):
             return redirect('homeVendedor')
-        elif hasattr(request.user, 'admin'):
+        elif hasattr(request.user, 'administrador'):
             return redirect('homeAdmin')
         else:
             return redirect('login')  # Si no tiene rol asignado, redirigir al login
@@ -55,39 +55,66 @@ def loginView(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)  # Iniciar sesión del usuario
-
-            # Redirigir al usuario según su rol
-            if hasattr(user, 'cliente'):
-                return redirect('homeCliente')
-            elif hasattr(user, 'vendedor'):
-                return redirect('homeVendedor')
-            elif hasattr(user, 'admin'):
-                return redirect('homeAdmin')
+        
+        try:
+            # Buscar al usuario manualmente en la base de datos
+            user = None
+            if Cliente.objects.filter(usuario=username).exists():
+                user = Cliente.objects.get(usuario=username)
+            elif Vendedor.objects.filter(usuario=username).exists():
+                user = Vendedor.objects.get(usuario=username)
+            elif Administrador.objects.filter(usuario=username).exists():
+                user = Administrador.objects.get(usuario=username)
+            
+            if user:
+                # Verificar la contraseña usando check_password
+                if user.check_password(password):
+                    # Iniciar sesión del usuario manualmente
+                    if isinstance(user, Cliente):
+                        request.session['user_id'] = user.id_cliente  # Usar el ID específico para Cliente
+                    elif isinstance(user, Vendedor):
+                        request.session['user_id'] = user.id_vendedor  # Usar el ID específico para Vendedor
+                    elif isinstance(user, Administrador):
+                        request.session['user_id'] = user.id_administrador  # Usar el ID específico para Administrador
+                    
+                    # Redirigir según el rol del usuario
+                    if isinstance(user, Cliente):
+                        print(f"Usuario {user.usuario} ha iniciado sesión como cliente.")  # Depuración
+                        return render(request, 'cliente/inicioCliente.html', {'usuario_nombre': user.usuario, 'usuario_id': user.id_cliente})
+                    elif isinstance(user, Vendedor):
+                        return render(request, 'vendedor/inicioVendedor.html', {'usuario_nombre': user.usuario, 'usuario_id': user.id_vendedor})
+                    elif isinstance(user, Administrador):
+                        return render(request, 'administrador/inicioAdministrador.html', {'usuario_nombre': user.usuario, 'usuario_id': user.id_administrador})
+                else:
+                    messages.error(request, 'Credenciales incorrectas')
+                    return render(request, 'login.html', {'error': 'Credenciales incorrectas'})
             else:
-                return redirect('login')  # Si no tiene rol asignado, redirigir al login
-        else:
-            messages.error(request, 'Credenciales incorrectas')
-            return render(request, 'login.html', {'error': 'Credenciales incorrectas'})
+                messages.error(request, 'Usuario no encontrado')
+                return render(request, 'login.html', {'error': 'Usuario no encontrado'})
+        except Exception as e:
+            messages.error(request, 'Hubo un error al intentar iniciar sesión')
+            return render(request, 'login.html', {'error': str(e)})
 
     return render(request, 'login.html')  # Mostrar el formulario de login
+
+
+
+
 
 def redirect_to_login(request):
     return redirect('login')
 
-@login_required
-def inicioCliente(request):
+
+def homeCliente(request):
     return render(request, 'cliente/inicioCliente.html')
 
-@login_required
-def inicioVendedor(request):
+
+def homeVendedor(request):
     return render(request, 'vendedor/inicioVendedor.html')
 
-@login_required
-def inicioAdmin(request):
-    return render(request, 'administrador/inicioAdmin.html')
+
+def homeAdmin(request):
+    return render(request, 'administrador/inicioAdministrador.html')
 
 def registroCliente(request):
     if request.method == 'POST':
@@ -98,6 +125,7 @@ def registroCliente(request):
             return HttpResponseRedirect('/login')  # Redirigir al login
     
     return render(request, 'registros/registroCliente.html')
+
 
 class RolViewSet(viewsets.ModelViewSet):
     queryset = Rol.objects.all()
