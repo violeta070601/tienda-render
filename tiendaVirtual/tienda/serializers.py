@@ -9,11 +9,14 @@ class RolSerializer(serializers.ModelSerializer):
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
-        fields = ['id_cliente', 'nombre', 'aPaterno', 'aMaterno', 'telefono', 'correo', 'usuario', 'password', 'rol']
+        fields = ['id_cliente', 'nombre', 'aPaterno', 'aMaterno', 'telefono', 'correo', 'usuario', 'password']
 
     def create(self, validated_data):
+        validated_data['rol_id'] = 3
+
         # Crear el cliente sin la contraseña encriptada
         cliente = Cliente(**validated_data)
+        
         
         # Llamar al método set_password para encriptar la contraseña antes de guardarla
         cliente.set_password(validated_data['password'])
@@ -25,9 +28,10 @@ class ClienteSerializer(serializers.ModelSerializer):
 class VendedorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vendedor
-        fields = '__all__'
+        exclude = ['rol']
 
     def create(self, validated_data):
+        validated_data['rol_id'] = 2
         # Crear el vendedor sin la contraseña encriptada
         vendedor = Vendedor(**validated_data)
 

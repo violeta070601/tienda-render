@@ -1,10 +1,11 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from rest_framework import viewsets
+from .forms import ClienteForm
 from .models import Rol, Cliente, Vendedor, Administrador, Categoria, Producto
 from .serializers import RolSerializer, ClienteSerializer, VendedorSerializer, AdministradorSerializer, CategoriaSerializer, ProductoSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import viewsets, status
 from .serializers import ClienteSerializer
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -17,11 +18,11 @@ class RolViewSet(viewsets.ModelViewSet):
     queryset = Rol.objects.all()
     serializer_class = RolSerializer
 
-class ClienteViewSet(viewsets.ModelViewSet):
+class RegistroClienteViewSet(viewsets.ModelViewSet):
     queryset = Cliente.objects.all()
     serializer_class = ClienteSerializer
 
-class VendedorViewSet(viewsets.ModelViewSet):
+class RegistroVendedorViewSet(viewsets.ModelViewSet):
     queryset = Vendedor.objects.all()
     serializer_class = VendedorSerializer
 
@@ -76,7 +77,6 @@ def loginView(request):
 def redirect_to_login(request):
     return redirect('login')
 
-
 @login_required
 def inicioCliente(request):
     return render(request, 'cliente/inicioCliente.html')
@@ -89,15 +89,15 @@ def inicioVendedor(request):
 def inicioAdmin(request):
     return render(request, 'administrador/inicioAdmin.html')
 
-def registro_cliente(request):
-    if request.method == 'POST':    
-        pass
+def registroCliente(request):
+    if request.method == 'POST':
+        form = ClienteForm(request.POST)
+        if form.is_valid():
+            form.save()  # Guardar el cliente en la base de datos
+            messages.success(request, 'Cliente registrado exitosamente')
+            return HttpResponseRedirect('/login')  # Redirigir al login
+    
     return render(request, 'registros/registroCliente.html')
-
-def registro_vendedor(request):
-    if request.method == 'POST':    
-        pass
-    return render(request, 'registros/registroVendedor.html')
 
 class RolViewSet(viewsets.ModelViewSet):
     queryset = Rol.objects.all()
