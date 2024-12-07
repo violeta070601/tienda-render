@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio</title>
+    <title>Inicio vendedor</title>
 </head>
 <body>
-    <h2>
-        Bienvenido al inicio del vendedor {{ usuario_nombre }}
-    </h2>
-    <p>ID del vendedor: {{ usuario_id }}</p>
-    <form method="post" action="{% url 'logout' %}">
+    <h1>Bienvenido, {{ user.usuario }}</h1>
+    <p>Tu ID de usuario es: {{ user.id }}</p>
+
+    <!-- Formulario de logout -->
+    <form action="{% url 'logout' %}" method="post">
         {% csrf_token %}
         <button type="submit">Cerrar sesión</button>
     </form>
