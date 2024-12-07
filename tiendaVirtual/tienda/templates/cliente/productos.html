@@ -7,18 +7,13 @@
 </head>
 <body>
     <h2>
-        Bienvenido al inicio del vendedor {{ usuario_nombre }}
+        Bienvenido {{ usuario_nombre }}
     </h2>
-    <p>ID del vendedor: {{ usuario_id }}</p>
+    <p>ID del cliente: {{ usuario_id }}</p>
+    <p>Aqui se mostraran los productos</p>
     <form method="post" action="{% url 'logout' %}">
         {% csrf_token %}
         <button type="submit">Cerrar sesión</button>
     </form>
-    <script>
-        history.pushState(null, null, location.href);
-        window.onpopstate = function () {
-            history.go(1);
-        };
-    </script>
 </body>
 </html>

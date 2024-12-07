@@ -7,8 +7,18 @@
 </head>
 <body>
     <h2>
-        Bienvenido al inicio del administrador {{ usuario_nombre }}
+        Bienvenido al inicio del cliente {{ usuario_nombre }}
     </h2>
-    <p>ID del Administrador: {{ usuario_id }}</p>
+    <p>ID del administrador: {{ usuario_id }}</p>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Cerrar sesión</button>
+    </form>
+    <script>
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
 </body>
 </html>
