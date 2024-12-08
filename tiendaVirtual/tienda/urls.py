@@ -6,32 +6,71 @@ from . import views
 
 router = DefaultRouter()
 
+#A esto no le muevan bola de nacos
 urlpatterns = [
-    path('', views.login_view, name='login'),                                               #Esta es la ruta para el login
-    path('logout/', views.logout_view, name='logout'),                                      #Esta es la ruta para que se pueda cerrar sesion, va en todas las putas vistas de html que usen
-    path('homeAdmin/', views.homeAdmin, name='homeAdmin'),                                  #Pagina de inicio para el administrador de la tienda
-    path('homeVendedor/', views.homeVendedor, name='homeVendedor'),                         #Pagina de inicio para el vendedor de la tienda
-    path('homeCliente/', views.homeCliente, name='homeCliente'),                            #Pagina de inicio para el cliente de la tienda
-    path('prueba/', views.prueba, name='prueba'),                                           #A esto no le muevan bola de nacos
-    path('registroCliente/', views.registro_clientes_view, name='registro_clientes'),       #URL para entrar al registro de clientes
-    path('api/registrar_cliente/', views.registrar_cliente, name='registrar_cliente'),      #URL para dar de alta al cliente
+    #-----------------------------------------------------------------------------------------------------------------------#
+    path('super/', include(router.urls)),
+    # Paths: login/home
+    path('', views.login_view, name='login'),
+    # Paths: logout
+    path('logout/', views.logout_view, name='logout'),
+
+    #-----------------------------------------------------------------------------------------------------------------------#
+    # Paths: Vendedor
+    path('homeVendedor/', views.homeVendedor, name='homeVendedor'),  
+    # Paths: Vendedor: Registro
     path('registroVendedor/', views.registro_vendedor_view, name='registro_vendedor'),
     path('api/registrar_vendedor/', views.registrar_vendedor, name='registrar_vendedor'),
-    path('inicioClientesAdmin/', views.inicioClientesAdmin, name='inicioClientesAdmin'),
-    path('inicioVendedorAdmin/', views.inicioVendedorAdmin, name='inicioVendedorAdmin'),
-    path('inicioCategoriasAdmin/', views.inicioCategoriasAdmin, name='inicioCategoriasAdmin'),
-    path('inicioProductosAdmin/', views.inicioProductosAdmin, name='inicioProductosAdmin'),
-    path('inicioPedidosAdmin/', views.inicioPedidosAdmin, name='inicioPedidosAdmin'),  
-    path('super/', include(router.urls)),
-    path('gestionarClientesAdmin/', views.gestionar_clientes_admin, name='gestionarClientesAdmin'),
-    path('eliminarClientesAdmin/<int:cliente_id>/', views.eliminarClientesAdmin, name='eliminarClientesAdmin'),
-    path('crearCategoriaAdmin/', views.crearCategoriaAdmin, name='crearCategoriaAdmin'),
-    path('gestionarCategoriasAdmin/', views.gestionarCategoriasAdmin, name='gestionarCategoriasAdmin'),
-    path('gestionarVendedorAdmin/', views.gestionarVendedorAdmin, name='gestionarVendedorAdmin'),
+    # Paths: Vendedor: home
     path('inicioProductosVendedor/', views.inicioProductosVendedor, name='inicioProductosVendedor'),
+    # Paths: Vendedor: pedidos: home
     path('inicioPedidosVendedor/', views.inicioPedidosVendedor, name='inicioPedidosVendedor'),
+    # Paths: Vendedor: productos: create
     path('crearProductoVendedor/', views.crearProductoVendedor, name='crearProductoVendedor'),
-    path('gestionarProductosAdmin/', views.gestionarProductosAdmin, name='gestionarProductosAdmin'),
+
+    #-----------------------------------------------------------------------------------------------------------------------#
+    # Paths: Administracion:
+    path('homeAdmin/', views.homeAdmin, name='homeAdmin'),
+
+    # Paths: Administracion: Clientes: home 
+    path('inicioClientesAdmin/', views.inicioClientesAdmin, name='inicioClientesAdmin'),
+    # Paths: Administracion: Clientes: consulta
+    path('gestionarClientesAdmin/', views.gestionar_clientes_admin, name='gestionarClientesAdmin'),
+    # Paths: Administracion: Clientes: drop
+    path('eliminarClientesAdmin/<int:cliente_id>/', views.eliminarClientesAdmin, name='eliminarClientesAdmin'),
+
+    # Paths: Administracion: Vendedor: home
+    path('inicioVendedorAdmin/', views.inicioVendedorAdmin, name='inicioVendedorAdmin'),
+    # Paths: Administracion: Vendedor: consulta
+    path('gestionarVendedorAdmin/', views.gestionarVendedorAdmin, name='gestionarVendedorAdmin'),
+
+    # Paths: Administracion: Categorias: home
+    path('inicioCategoriasAdmin/', views.inicioCategoriasAdmin, name='inicioCategoriasAdmin'),
+    # Paths: Administracion: Categorias: create
+    path('crearCategoriaAdmin/', views.crearCategoriaAdmin, name='crearCategoriaAdmin'),
+    # Paths: Administracion: Categorias: consulta
+    path('gestionarCategoriasAdmin/', views.gestionarCategoriasAdmin, name='gestionarCategoriasAdmin'),
+    # Paths: Administracion: Categorias: update
     path('modificarCategoriasAdmin/<int:categoria_id>/', views.modificarCategoriasAdmin, name='modificarCategoriasAdmin'),
+    # Paths: Administracion: Categorias: drop
     path('eliminarCategoriaAdmin/<int:categoria_id>/', views.eliminarCategoriaAdmin, name='eliminarCategoriaAdmin'),
+
+    # Paths: Administracion: Productos: home
+    path('inicioProductosAdmin/', views.inicioProductosAdmin, name='inicioProductosAdmin'),
+    # Paths: Administracion: Productos: consulta
+    path('gestionarProductosAdmin/', views.gestionarProductosAdmin, name='gestionarProductosAdmin'),
+
+    # Paths: Administracion: Pedidos: home
+    path('inicioPedidosAdmin/', views.inicioPedidosAdmin, name='inicioPedidosAdmin'),
+    
+    #-----------------------------------------------------------------------------------------------------------------------#
+    # Paths: Cliente
+    path('homeCliente/', views.homeCliente, name='homeCliente'), 
+    # Paths: Cliente: registro:           
+    path('registroCliente/', views.registro_clientes_view, name='registro_clientes'),       #URL para entrar al registro de clientes
+    path('api/registrar_cliente/', views.registrar_cliente, name='registrar_cliente'),
+    # Paths: Cliente: Pedidos: Home
+    path('ClientePedidosHome/', views.ClientePedidosHome, name='ClientePedidosHome'),
+    # Paths: Cliente: Productos: Home
+    path('ClienteProductoHome/', views.ClienteProductosHome, name='ClienteProductosHome'),
 ]
