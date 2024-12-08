@@ -13,6 +13,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.contrib import messages
+from django.http import HttpResponseForbidden
+from django.urls import reverse
 
 # ViewSet para el modelo Rol
 class RolViewSet(viewsets.ModelViewSet):
@@ -192,3 +194,54 @@ def inicioProductosVendedor(request):
 
 def inicioPedidosVendedor(request):
     return render(request, 'vendedor/pedidosVendedor/inicioPedidosVendedor.html', {'user': request.user})
+
+
+@login_required
+def crearProductoVendedor(request):
+    # Verificar que el usuario tenga el rol de vendedor
+    if request.user.rol.nombre.lower() != 'vendedor':
+        # Usar reverse para obtener la URL del login
+        login_url = reverse('login')
+        return HttpResponseForbidden(f"""
+            <h1>Acceso denegado</h1>
+            <p>No tienes permisos para realizar esta acción.</p>
+            <p><a href="{login_url}">Haz clic aquí para iniciar sesión</a></p>
+        """)
+
+    # Procesar el formulario cuando se envíe
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        costo = request.POST.get('costo')
+        stock = request.POST.get('stock')
+        categoria_id = request.POST.get('categoria')
+
+        # Validar que los campos estén completos
+        if not (nombre and descripcion and costo and stock and categoria_id):
+            return render(request, 'vendedor/productosVendedor/crearProductoVendedor.html', {
+                'categorias': Categoria.objects.all(),
+                'error': 'Todos los campos son obligatorios.',
+            })
+
+        try:
+            # Crear el producto
+            categoria = Categoria.objects.get(id=categoria_id)
+            Producto.objects.create(
+                nombre=nombre,
+                descripcion=descripcion,
+                costo=costo,
+                stock=stock,
+                categoria_id=categoria_id,
+                usuario_id=request.user.id
+            )
+            return redirect('inicioProductosVendedor')  # Redirigir a una lista de productos (ajustar según necesidad)
+        except Categoria.DoesNotExist:
+            return render(request, 'productos/crearProductosVendedor.html', {
+                'categorias': Categoria.objects.all(),
+                'error': 'La categoría seleccionada no existe.',
+            })
+
+    # Si el método es GET, renderizar el formulario
+    return render(request, 'vendedor/productosVendedor/crearProductoVendedor.html', {
+        'categorias': Categoria.objects.all(),
+    })
