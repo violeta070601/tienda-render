@@ -175,14 +175,6 @@ def crearCategoriaAdmin(request):
     return render(request, 'administrador/categoriasAdmin/crearCategoriaAdmin.html')  # Mostrar el formulario
 
 @login_required
-def gestionarCategoriasAdmin(request):
-    # Obtener todas las categorías
-    categorias = Categoria.objects.all()
-
-    # Renderizar la página con las categorías
-    return render(request, 'administrador/categoriasAdmin/gestionarCategoriasAdmin.html', {'categorias': categorias})
-
-@login_required
 def gestionarVendedorAdmin(request):
     # Obtener todos los usuarios con rol de cliente
     clientes = Usuario.objects.filter(rol__nombre="vendedor")  # Filtra los usuarios con rol 'cliente'
@@ -261,3 +253,43 @@ def gestionarProductosAdmin(request):
 
         #Renderizar la página con las categorías
         return render(request, 'administrador/productosAdmin/gestionarProductosAdmin.html', {'productos': productos})
+
+
+@login_required
+def modificarCategoriasAdmin(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id=categoria_id)
+
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+
+        # Actualizar la categoría
+        categoria.nombre = nombre
+        categoria.descripcion = descripcion
+        categoria.save()
+
+        # Mensaje de éxito
+        messages.success(request, f"La categoría '{categoria.nombre}' ha sido actualizada correctamente.")
+
+        return redirect('inicioCategoriasAdmin')  # Redirigir a la página de gestión de categorías
+
+    return render(request, 'administrador/categoriasAdmin/modificarCategoriasAdmin.html', {'categoria': categoria})
+
+@login_required
+def eliminarCategoriaAdmin(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id=categoria_id)
+
+    # Accede a los productos relacionados de la categoría
+    productos = categoria.producto_set.all()  # Obtén todos los productos de esa categoría
+
+    if productos.exists():
+        # Realiza algo con los productos (por ejemplo, mostrar un mensaje)
+        messages.error(request, f"La categoría {categoria.nombre} tiene productos asociados y no puede ser eliminada.")
+        return redirect('gestionarCategoriasAdmin')
+
+    if request.method == 'POST':
+        categoria.delete()  # Eliminar la categoría
+        messages.success(request, f"La categoría '{categoria.nombre}' ha sido eliminada correctamente.")
+        return redirect('gestionarCategoriasAdmin')
+
+    return render(request, 'administrador/categoriasAdmin/eliminarCategoriasAdmin.html', {'categoria': categoria})

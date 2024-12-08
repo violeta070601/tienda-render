@@ -1,9 +1,18 @@
-<!-- templates/administrador/categoriasAdmin/gestionarCategoriasAdmin.html -->
-
 {% extends 'administrador/baseAdmin.html' %}
 
 {% block content %}
   <h2>Gestión de Categorías</h2>
+
+  <!-- Mostrar mensajes de éxito o error -->
+  <div>
+    {% if messages %}
+      <div class="alert alert-warning">
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
 
   <a href="{% url 'crearCategoriaAdmin' %}" class="btn btn-primary">Crear Nueva Categoría</a>
 
@@ -15,6 +24,7 @@
             <th>Nombre</th>
             <th>Descripción</th>
             <th>Productos</th> <!-- Nueva columna -->
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -24,9 +34,17 @@
             <td>{{ categoria.nombre }}</td>
             <td>{{ categoria.descripcion }}</td>
             <td>{{ categoria.productos_count }}</td> <!-- Conteo de productos -->
+            <td>
+                <a href="{% url 'modificarCategoriasAdmin' categoria.id %}">
+                    <button class="btn btn-warning" style="margin-right: 4px;">Modificar</button>
+                </a>
+                <a href="{% url 'eliminarCategoriaAdmin' categoria.id %}">
+                    <button class="btn btn-danger">Eliminar</button>
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
-</table>
+  </table>
 
 {% endblock %}

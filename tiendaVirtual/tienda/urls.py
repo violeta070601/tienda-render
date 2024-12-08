@@ -32,4 +32,6 @@ urlpatterns = [
     path('inicioPedidosVendedor/', views.inicioPedidosVendedor, name='inicioPedidosVendedor'),
     path('crearProductoVendedor/', views.crearProductoVendedor, name='crearProductoVendedor'),
     path('gestionarProductosAdmin/', views.gestionarProductosAdmin, name='gestionarProductosAdmin'),
+    path('modificarCategoriasAdmin/<int:categoria_id>/', views.modificarCategoriasAdmin, name='modificarCategoriasAdmin'),
+    path('eliminarCategoriaAdmin/<int:categoria_id>/', views.eliminarCategoriaAdmin, name='eliminarCategoriaAdmin'),
 ]
