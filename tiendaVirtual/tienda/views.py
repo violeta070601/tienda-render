@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from .models import Rol, Usuario, Categoria
-from .serializers import RolSerializer, UsuarioSerializer, CategoriaSerializer
+from .models import Rol, Usuario, Categoria, Producto
+from .serializers import RolSerializer, UsuarioSerializer, CategoriaSerializer, ProductoSerializer
 from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
@@ -12,6 +12,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from django.contrib import messages
 
 # ViewSet para el modelo Rol
 class RolViewSet(viewsets.ModelViewSet):
@@ -30,6 +31,11 @@ class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
     permission_classes = [IsAuthenticated]
+
+#ViewSet para el modelo Producto
+class ProductoViewSet(viewsets.ModelViewSet):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
 
 
 
@@ -128,3 +134,61 @@ def inicioProductosAdmin(request):
 
 def inicioPedidosAdmin(request):
     return render(request, 'administrador/pedidosAdmin/inicioPedidosAdmin.html', {'user': request.user})
+#De aqui para abajo le movi
+@login_required
+def gestionar_clientes_admin(request):
+    # Obtener todos los usuarios con rol de cliente
+    clientes = Usuario.objects.filter(rol__nombre="cliente")  # Filtra los usuarios con rol 'cliente'
+    
+    # Renderizar la página con los clientes
+    return render(request, 'administrador/clientesAdmin/gestionarClientesAdmin.html', {'clientes': clientes})
+@login_required
+def eliminarClientesAdmin(request, cliente_id):
+    # Obtener el cliente por id
+    cliente = get_object_or_404(Usuario, id=cliente_id)
+
+    if request.method == 'POST':
+        # Cambiar el campo is_active a False
+        cliente.is_active = False
+        cliente.save()
+        messages.success(request, f"El cliente {cliente.nombre} ha sido desactivado correctamente.")
+        return redirect('gestionarClientesAdmin')  # Redirige a la página de gestión de clientes
+
+    return render(request, 'administrador/clientesAdmin/eliminarClientesAdmin.html', {'cliente': cliente})
+
+def crearCategoriaAdmin(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+
+        # Crear la nueva categoría
+        categoria = Categoria.objects.create(nombre=nombre, descripcion=descripcion)
+
+        # Mensaje de éxito
+        messages.success(request, f"La categoría '{categoria.nombre}' ha sido creada correctamente.")
+
+        return redirect('inicioCategoriasAdmin')  # Redirigir a la página de gestión de categorías
+
+    return render(request, 'administrador/categoriasAdmin/crearCategoriaAdmin.html')  # Mostrar el formulario
+
+@login_required
+def gestionarCategoriasAdmin(request):
+    # Obtener todas las categorías
+    categorias = Categoria.objects.all()
+
+    # Renderizar la página con las categorías
+    return render(request, 'administrador/categoriasAdmin/gestionarCategoriasAdmin.html', {'categorias': categorias})
+
+@login_required
+def gestionarVendedorAdmin(request):
+    # Obtener todos los usuarios con rol de cliente
+    clientes = Usuario.objects.filter(rol__nombre="vendedor")  # Filtra los usuarios con rol 'cliente'
+    
+    # Renderizar la página con los clientes
+    return render(request, 'administrador/vendedorAdmin/gestionarVendedorAdmin.html', {'clientes': clientes})
+
+def inicioProductosVendedor(request):
+    return render(request, 'vendedor/productosVendedor/inicioProductosVendedor.html', {'user': request.user})
+
+def inicioPedidosVendedor(request):
+    return render(request, 'vendedor/pedidosVendedor/inicioPedidosVendedor.html', {'user': request.user})

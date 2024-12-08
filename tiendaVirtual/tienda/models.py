@@ -58,3 +58,14 @@ class Categoria(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+class Producto(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    costo = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.IntegerField()
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)  # Relación con el usuario que da de alta
+
+    def __str__(self):
+        return self.nombre

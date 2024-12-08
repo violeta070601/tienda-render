@@ -13,7 +13,7 @@ urlpatterns = [
     path('homeVendedor/', views.homeVendedor, name='homeVendedor'),                         #Pagina de inicio para el vendedor de la tienda
     path('homeCliente/', views.homeCliente, name='homeCliente'),                            #Pagina de inicio para el cliente de la tienda
     path('prueba/', views.prueba, name='prueba'),                                           #A esto no le muevan bola de nacos
-    path('registroCliente/', views.registro_clientes_view, name='registro_clientes'),              #URL para entrar al registro de clientes
+    path('registroCliente/', views.registro_clientes_view, name='registro_clientes'),       #URL para entrar al registro de clientes
     path('api/registrar_cliente/', views.registrar_cliente, name='registrar_cliente'),      #URL para dar de alta al cliente
     path('registroVendedor/', views.registro_vendedor_view, name='registro_vendedor'),
     path('api/registrar_vendedor/', views.registrar_vendedor, name='registrar_vendedor'),
@@ -23,4 +23,11 @@ urlpatterns = [
     path('inicioProductosAdmin/', views.inicioProductosAdmin, name='inicioProductosAdmin'),
     path('inicioPedidosAdmin/', views.inicioPedidosAdmin, name='inicioPedidosAdmin'),  
     path('super/', include(router.urls)),
+    path('gestionarClientesAdmin/', views.gestionar_clientes_admin, name='gestionarClientesAdmin'),
+    path('eliminarClientesAdmin/<int:cliente_id>/', views.eliminarClientesAdmin, name='eliminarClientesAdmin'),
+    path('crearCategoriaAdmin/', views.crearCategoriaAdmin, name='crearCategoriaAdmin'),
+    path('gestionarCategoriasAdmin/', views.gestionarCategoriasAdmin, name='gestionarCategoriasAdmin'),
+    path('gestionarVendedorAdmin/', views.gestionarVendedorAdmin, name='gestionarVendedorAdmin'),
+    path('inicioProductosVendedor/', views.inicioProductosVendedor, name='inicioProductosVendedor'),
+    path('inicioPedidosVendedor/', views.inicioPedidosVendedor, name='inicioPedidosVendedor'),
 ]

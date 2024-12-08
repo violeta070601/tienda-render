@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario, Rol, Categoria
+from .models import Usuario, Rol, Categoria, Producto
 
 @admin.register(Usuario)
 class CustomUserAdmin(UserAdmin):
@@ -35,3 +35,25 @@ class RolAdmin(admin.ModelAdmin):
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = ('id', 'nombre', 'descripcion')
     search_fields = ('nombre', 'descripcion')
+
+@admin.register(Producto)
+class ProductoAdmin(admin.ModelAdmin):
+    # Campos que se muestran en la lista de productos
+    list_display = ('id', 'nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario')
+    # Campos que puedes buscar en el panel de administración
+    search_fields = ('nombre', 'descripcion', 'categoria__nombre', 'usuario__usuario')
+    # Filtros para facilitar la búsqueda en el panel de administración
+    list_filter = ('categoria', 'usuario', 'stock')
+    # Orden de los productos en la lista de administración
+    ordering = ('nombre',)
+    # Campos que se mostrarán en los formularios del admin para modificar un producto
+    fieldsets = (
+        (None, {'fields': ('nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario')}),
+    )
+    # En el caso de agregar un producto, se mostrarán estos campos
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario'),
+        }),
+    )

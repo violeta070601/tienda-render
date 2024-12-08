@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Rol, Usuario, Categoria
+from .models import Rol, Usuario, Categoria, Producto
 
 # Serializer para el modelo Rol
 class RolSerializer(serializers.ModelSerializer):
@@ -60,4 +60,13 @@ class UsuarioSerializer(serializers.ModelSerializer):
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
-        fields = ['id_categoria', 'nombre', 'descripcion']
+        fields = ['id', 'nombre', 'descripcion']
+
+class ProductoSerializer(serializers.ModelSerializer):
+    # Usamos PrimaryKeyRelatedField para solo mostrar el ID de la categoria y usuario
+    categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())
+    usuario = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all())
+
+    class Meta:
+        model = Producto
+        fields = ['id', 'nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario']
