@@ -8,6 +8,42 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
+
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="#">Admin Dashboard</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">Vendedores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">Categorías</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">Productos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#">Pedidos</a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Cerrar sesión</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-5">
         <!-- Encabezado -->
         <div class="row mb-4">
@@ -17,14 +53,12 @@
             </div>
         </div>
 
-        <!-- Botón para cerrar sesión -->
+        <!-- Botón para la prueba -->
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <a href="{% url 'prueba' %}"><button class="btn btn-primary btn-block btn-lg">Prueba</button></a>
-                <form action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-block btn-lg mt-4">Cerrar sesión</button>
-                </form>
+                <a href="{% url 'prueba' %}">
+                    <button class="btn btn-primary btn-block btn-lg">Prueba</button>
+                </a>
             </div>
         </div>
     </div>
