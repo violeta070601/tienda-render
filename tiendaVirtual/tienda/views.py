@@ -15,6 +15,7 @@ from rest_framework import status
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.urls import reverse
+from django.db.models import Count
 
 # ViewSet para el modelo Rol
 class RolViewSet(viewsets.ModelViewSet):
@@ -245,3 +246,18 @@ def crearProductoVendedor(request):
     return render(request, 'vendedor/productosVendedor/crearProductoVendedor.html', {
         'categorias': Categoria.objects.all(),
     })
+
+def gestionarCategoriasAdmin(request):
+    # Obtener todas las categorías con el conteo de productos relacionados
+    categorias = Categoria.objects.annotate(productos_count=Count('producto'))
+
+    # Renderizar la página con las categorías y el conteo de productos
+    return render(request, 'administrador/categoriasAdmin/gestionarCategoriasAdmin.html', {'categorias': categorias})
+
+@login_required
+def gestionarProductosAdmin(request):
+        #Obtener todas las categorías
+        productos = Producto.objects.all()
+
+        #Renderizar la página con las categorías
+        return render(request, 'administrador/productosAdmin/gestionarProductosAdmin.html', {'productos': productos})
