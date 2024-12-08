@@ -17,5 +17,10 @@ urlpatterns = [
     path('api/registrar_cliente/', views.registrar_cliente, name='registrar_cliente'),      #URL para dar de alta al cliente
     path('registroVendedor/', views.registro_vendedor_view, name='registro_vendedor'),
     path('api/registrar_vendedor/', views.registrar_vendedor, name='registrar_vendedor'),
+    path('inicioClientesAdmin/', views.inicioClientesAdmin, name='inicioClientesAdmin'),
+    path('inicioVendedorAdmin/', views.inicioVendedorAdmin, name='inicioVendedorAdmin'),
+    path('inicioCategoriasAdmin/', views.inicioCategoriasAdmin, name='inicioCategoriasAdmin'),
+    path('inicioProductosAdmin/', views.inicioProductosAdmin, name='inicioProductosAdmin'),
+    path('inicioPedidosAdmin/', views.inicioPedidosAdmin, name='inicioPedidosAdmin'),  
     path('super/', include(router.urls)),
 ]

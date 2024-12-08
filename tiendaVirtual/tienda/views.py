@@ -113,3 +113,18 @@ def registrar_vendedor(request):
         serializer.save()
         return redirect('login')  # Redirige a la vista del login
     return Response(serializer.errors, status=400)
+
+def inicioClientesAdmin(request):
+    return render(request, 'administrador/clientesAdmin/inicioClientesAdmin.html', {'user': request.user})
+
+def inicioVendedorAdmin(request):
+    return render(request, 'administrador/vendedorAdmin/inicioVendedorAdmin.html', {'user': request.user})
+
+def inicioCategoriasAdmin(request):
+    return render(request, 'administrador/categoriasAdmin/inicioCategoriasAdmin.html', {'user': request.user})
+
+def inicioProductosAdmin(request):
+    return render(request, 'administrador/productosAdmin/inicioProductosAdmin.html', {'user': request.user})
+
+def inicioPedidosAdmin(request):
+    return render(request, 'administrador/pedidosAdmin/inicioPedidosAdmin.html', {'user': request.user})
