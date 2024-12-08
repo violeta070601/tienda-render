@@ -10,19 +10,23 @@
   <h3 class="mt-4">Categorías Existentes</h3>
   <table class="table table-bordered">
     <thead>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Descripcion</th>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Productos</th> <!-- Nueva columna -->
+        </tr>
     </thead>
     <tbody>
         {% for categoria in categorias %}
         <tr>
-            <td>{{ categoria.id}}</td>
-            <td>{{ categoria.nombre}}</td>
-            <td>{{ categoria.descripcion}}</td>
+            <td>{{ categoria.id }}</td>
+            <td>{{ categoria.nombre }}</td>
+            <td>{{ categoria.descripcion }}</td>
+            <td>{{ categoria.productos_count }}</td> <!-- Conteo de productos -->
         </tr>
         {% endfor %}
     </tbody>
-  </table>
+</table>
 
 {% endblock %}
