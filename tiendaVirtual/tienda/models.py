@@ -59,6 +59,7 @@ class Categoria(models.Model):
     def __str__(self):
         return self.nombre
     
+# Modelo Productos
 class Producto(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
@@ -69,3 +70,33 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+# Modelo Carrito
+class Carrito(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='carritos')  # Relación con Usuario
+    created_at = models.DateTimeField(auto_now_add=True)  # Fecha de creación
+    updated_at = models.DateTimeField(auto_now=True)  # Fecha de última actualización
+
+    def __str__(self):
+        return f"Carrito de {self.usuario.usuario} ({self.id})"
+
+    def get_total_price(self):
+        """Calcula el precio total del carrito."""
+        return sum(item.get_total_price() for item in self.items.all())
+
+    def clear_cart(self):
+        """Vacía el carrito."""
+        self.items.all().delete()
+
+# Modelo CarritoItems (Elementos dentro del carrito)
+class CarritoItems(models.Model):
+    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, related_name='items')  # Relación con Carrito
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)  # Relación con Producto
+    cantidad = models.PositiveIntegerField(default=1)  # Cantidad de productos en el carrito
+
+    def __str__(self):
+        return f"{self.cantidad} x {self.producto.nombre} (Carrito ID: {self.carrito.id})"
+
+    def get_total_price(self):
+        """Obtiene el precio total para este elemento del carrito."""
+        return self.producto.costo * self.cantidad

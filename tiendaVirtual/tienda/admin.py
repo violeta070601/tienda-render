@@ -1,6 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario, Rol, Categoria, Producto
+from .models import Usuario, Rol, Categoria, Producto, Carrito, CarritoItems
+
+admin.site.register(Carrito)
+admin.site.register(CarritoItems)
 
 @admin.register(Usuario)
 class CustomUserAdmin(UserAdmin):

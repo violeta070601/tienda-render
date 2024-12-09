@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from .models import Rol, Usuario, Categoria, Producto
+from .models import Rol, Usuario, Categoria, Producto, Carrito, CarritoItems
 from .serializers import RolSerializer, UsuarioSerializer, CategoriaSerializer, ProductoSerializer
 from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login
@@ -330,3 +330,60 @@ def ClienteProductosHome(request):
 # Vista Clientes: pedidos: home
 def ClientePedidosHome(request):
     return render(request, 'cliente/pedidosCliente/inicioPedidosCliente.html', {'user': request.user})
+
+#----------------------------------------------------------------------------------------------------------------#
+# Vista Carrito: Home
+@login_required
+def agregar_a_carrito(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+
+    # Busca si el producto ya está en el carrito
+    carrito_item, item_created = CarritoItems.objects.get_or_create(
+        carrito=carrito,
+        producto=producto
+    )
+    if not item_created:
+        # Incrementa la cantidad si el producto ya existe
+        carrito_item.cantidad += 1
+        carrito_item.save()
+
+    return redirect('ClienteProductosHome')  # Cambia 'productos' por el nombre del URL de tus productos.
+ # Vista Carrito: seguir comprando
+
+def seguir_comprando(request):
+    return redirect('ClienteProductosHome')
+
+# Vista carrito: ver carrito
+def ver_carrito(request):
+    carrito = Carrito.objects.get(usuario=request.user)
+    cart_items = carrito.items.all()
+    total_price = carrito.get_total_price()
+    return render(request, 'carrito/carrito.html', {'cart_items': cart_items, 'total_price': total_price})
+
+# Vista Carrito: Producto: drop
+def eliminar_del_carrito(request, item_id):
+    item = get_object_or_404(CarritoItems, id=item_id)
+    item.delete()
+    return redirect('carrito')
+
+# Vista Carrito: Producto: update
+def actualizar_cantidad(request, item_id):
+    item = get_object_or_404(CarritoItems, id=item_id)
+    
+    if request.method == "POST":
+        cantidad = request.POST.get('cantidad')
+        
+        try:
+            cantidad = int(cantidad)
+            if cantidad > 0:
+                item.cantidad = cantidad
+                item.save()
+            else:
+                item.delete()  # Si la cantidad es 0 o negativa, eliminamos el ítem del carrito
+        except ValueError:
+            pass  # Si la cantidad no es un número válido, no hacemos nada.
+        
+        return redirect('carrito')  # Redirigimos al carrito con la cantidad actualizada
+
+    return redirect('carrito')

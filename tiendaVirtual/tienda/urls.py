@@ -73,4 +73,13 @@ urlpatterns = [
     path('ClientePedidosHome/', views.ClientePedidosHome, name='ClientePedidosHome'),
     # Paths: Cliente: Productos: Home
     path('ClienteProductoHome/', views.ClienteProductosHome, name='ClienteProductosHome'),
+
+    #-----------------------------------------------------------------------------------------------------------------------#
+    # Paths: Carrito
+    path('carrito/agregar/<int:producto_id>/', views.agregar_a_carrito, name='agregar_a_carrito'),
+    path('carrito/', views.ver_carrito, name='carrito'),
+    path('carrito/eliminar/<int:item_id>/', views.eliminar_del_carrito, name='remove_from_cart'),
+    path('ClienteProductoHome/', views.seguir_comprando, name='seguir-comprando'),
+    path('carrito/actualizar/<int:item_id>/', views.actualizar_cantidad, name='actualizar_cantidad'),
+    
 ]

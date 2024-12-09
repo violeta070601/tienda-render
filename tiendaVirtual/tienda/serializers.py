@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Rol, Usuario, Categoria, Producto
+from .models import Rol, Usuario, Categoria, Producto, Carrito, CarritoItems
 
 # Serializer para el modelo Rol
 class RolSerializer(serializers.ModelSerializer):
@@ -70,3 +70,22 @@ class ProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto
         fields = ['id', 'nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario']
+
+class CarritoItemsSerializer(serializers.ModelSerializer):
+    producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
+
+    class Meta:
+        model = CarritoItems
+        fields = ['id', 'carrito', 'producto', 'cantidad']
+
+# Serializer para Carrito
+class CarritoSerializer(serializers.ModelSerializer):
+    items = CarritoItemsSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Carrito
+        fields = ['id', 'usuario', 'items']
+
+    def create(self, validated_data):
+        carrito, created = Carrito.objects.get_or_create(usuario=validated_data['usuario'])
+        return carrito
