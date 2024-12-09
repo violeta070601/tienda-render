@@ -25,7 +25,7 @@
                         <a class="nav-link text-white mt-2" href="{% url 'inicioProductosVendedor' %}">Productos</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white mt-2" href="{% url 'verPedidoCliente' user.id%}">Pedidos</a>
+                        <a class="nav-link text-white mt-2" href="{% url 'verPedido' user.id%}">Pedidos</a>
                     </li>
                     <li class="nav-item">
                         <form action="{% url 'logout' %}" method="post">

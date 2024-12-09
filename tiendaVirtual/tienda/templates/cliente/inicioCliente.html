@@ -31,7 +31,11 @@
                   <td>{{ producto.descripcion }}</td>
                   <td>{{ producto.categoria.nombre }}</td>
                   <td>{{ producto.costo }}</td>
-                  <td><a href="{% url 'agregar_a_carrito' producto.id %}" class="btn btn-secondary">Agregar a carrito</a></td>
+                  <td>
+                    <a href="{% url 'agregar_a_carrito' producto.id %}" class="btn btn-secondary">
+                        <i class="fa-sharp fa-solid fa-cart-shopping"></i>
+                    </a>
+                </td>
               </tr>
               {% endfor %}
           </tbody>
