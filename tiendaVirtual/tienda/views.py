@@ -516,27 +516,34 @@ def actualizar_cantidad(request, item_id):
 #----------------------------------------------------------------------------------------------------------------#
 # Vista Pedido: Cliente: Consulta
 def verPedidoCliente(request, user_id):
-    # Obtener el usuario con el user_id proporcionado en la URL
     usuario = get_object_or_404(Usuario, id=user_id)
-    
-    # Filtrar los pedidos del usuario excluyendo los cancelados
     pedidos = Pedido.objects.filter(usuario=usuario).exclude(Q(estatus__iexact='cancelado'))
-    
-    # Determinar el template base según el rol del usuario
-    if usuario.rol == 'cliente':
-        template_base = 'cliente/baseCliente.html'
-    elif usuario.rol == 'administrador':
-        template_base = 'administrador/baseAdministrador.html'
-    elif usuario.rol == 'vendedor':
-        template_base = 'vendedor/baseVendedor.html'
-    else:
-        template_base = 'base.html'  # Template genérico por defecto
+    print(f"Usuario rol original: {usuario.rol}")
 
-    return render(request, 'pedidos/verPedido.html', {
-        'usuario': usuario,
-        'pedidos': pedidos,
-        'template_base': template_base,  # Pasamos el template base al contexto
-    })
+    # Si rol es un objeto, accedemos a su atributo de texto
+    rol_normalizado = usuario.rol.nombre.strip().lower()
+    print(f"Usuario rol normalizado: {rol_normalizado}")
+
+    # Determinar el template según el rol del usuario
+    try:
+        if rol_normalizado == 'cliente':
+            template_name = 'pedidos/pedidosCliente/verPedido_Cliente.html'
+        elif rol_normalizado == 'administrador':
+            template_name = 'pedidos/pedidosAdministracion/verPedido_Administrador.html'
+        elif rol_normalizado == 'vendedor':
+            template_name = 'pedidos/pedidosVendedor/verPedido_Vendedor.html'
+        else:
+            template_name = 'pedidos/basePedidos.html'
+
+        print(f"Usando template: {template_name}")
+        return render(request, template_name, {
+            'usuario': usuario,
+            'pedidos': pedidos,
+        })
+    except Exception as e:
+        print(f"Error al renderizar el template: {e}")
+        return redirect('homeVendedor')
+
 
 # Vista Pedido: Cliente: Detalles
 def ver_detalles_pedido(request, pedido_id):
