@@ -47,13 +47,13 @@
                                         data-estado="{{ direccion.estado }}"
                                         data-esprincipal="{{ direccion.es_principal }}"
                                         {% if direccion.id == selected_direccion_id %}selected{% endif %}>
-                                        {{ direccion.calle }}, {{ direccion.ciudad }}
+                                        {{ direccion.codigoPostal }}, {{ direccion.calle }}, {{ direccion.noExt }}, {{ direccion.ciudad }}
                                     </option>
                                 {% endfor %}
                             </select>
                             <div class="btn btn-group">
-                                <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#editAddressModal" onclick="loadAddressData(document.getElementById('direccion'))">Gestionar Dirección</button>
-                                <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#addAddressModal">Agregar Dirección</button>
+                                <button type="button" class="btn btn-outline-dark btn-block" data-toggle="modal" data-target="#editAddressModal" onclick="loadAddressData(document.getElementById('direccion'))">Gestionar Dirección</button>
+                                <button type="button" class="btn btn-outline-success btn-block" data-toggle="modal" data-target="#addAddressModal">Agregar Dirección</button>
                             </div>  
                         </div>                      
                     </form>
@@ -99,7 +99,7 @@
                     <p>Si deseas eliminar tu cuenta permanentemente, por favor presiona el botón de abajo. Esta acción no se puede deshacer.</p>
                     <form method="POST" action="#">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta?')">Eliminar Cuenta</button>
+                        <button type="submit" class="btn btn-outline-danger btn-block" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta?')">Eliminar Cuenta</button>
                     </form>
                 </div>
             </div>

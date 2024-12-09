@@ -34,7 +34,7 @@
                         <a class="nav-link text-white" href="{% url 'inicioProductosAdmin' %}">Productos</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'inicioPedidosAdmin' %}">Pedidos</a>
+                        <a class="nav-link text-white" href="{% url 'verPedidoCliente' user.id%}">Pedidos</a>
                     </li>
                     <li class="nav-item">
                         <form action="{% url 'logout' %}" method="post">
