@@ -232,8 +232,16 @@ def registrar_vendedor(request):
     return Response(serializer.errors, status=400)
 
 # Vista vendedor: productos: home
+@login_required
 def inicioProductosVendedor(request):
-    return render(request, 'vendedor/productosVendedor/inicioProductosVendedor.html', {'user': request.user})
+        # Verifica que tienes rol de vendedor
+        if request.user.rol.nombre.lower() != 'vendedor':
+            return HttpResponseForbidden("Acceso denegado: No tienes permisos para acceder a esta vista.")
+        #Obtener todas las categorías
+        productos = Producto.objects.filter(usuario=request.user)
+
+        #Renderizar la página con las categorías
+        return render(request, 'vendedor/productosVendedor/gestionarProductoVendedor.html', {'productos': productos})
 
 # Vista vendedor: productos: create
 @login_required
@@ -285,6 +293,51 @@ def crearProductoVendedor(request):
     return render(request, 'vendedor/productosVendedor/crearProductoVendedor.html', {
         'categorias': Categoria.objects.all(),
     })
+
+# Vista vendedor: productos: modificar
+@login_required
+def modificarProductoVendedor(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        stock = request.POST.get('stock')
+        costo = request.POST.get('costo')
+
+        # Actualizar la categoría
+        producto.nombre = nombre
+        producto.descripcion = descripcion
+        producto.stock = stock
+        producto.costo = costo
+        producto.save()
+
+        # Mensaje de éxito
+        messages.success(request, f"El producto '{producto.nombre}' ha sido actualizada correctamente.")
+
+        return redirect('inicioProductosVendedor')  # Redirigir a la página de gestión de categorías
+
+    return render(request, 'vendedor/productosVendedor/modificarProductoVendedor.html', {'producto': producto})
+
+# Vista Vendedor: Productos: drop
+@login_required
+def eliminarProductoVendedor(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+
+    # Accede a los productos relacionados del producto
+    productos = producto.producto_set.all()  # Obtén todos los productos de esa categoría
+
+    if productos.exists():
+        # Realiza algo con los productos (por ejemplo, mostrar un mensaje)
+        messages.error(request, f"El producto {producto.nombre} tiene productos asociados y no puede ser eliminada.")
+        return redirect('gestionarProductoVendedor')
+
+    if request.method == 'POST':
+        producto.delete()  # Eliminar la categoría
+        messages.success(request, f"La categoría '{producto.nombre}' ha sido eliminada correctamente.")
+        return redirect('gestionarProductoVendedor')
+
+    return render(request, 'vendedor/productosVendedor/eliminarProductoVendedor.html', {'producto': producto})
 
 # Vista vendedor: pedidos: home
 def inicioPedidosVendedor(request):

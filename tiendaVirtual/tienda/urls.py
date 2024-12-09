@@ -27,6 +27,10 @@ urlpatterns = [
     path('inicioPedidosVendedor/', views.inicioPedidosVendedor, name='inicioPedidosVendedor'),
     # Paths: Vendedor: productos: create
     path('crearProductoVendedor/', views.crearProductoVendedor, name='crearProductoVendedor'),
+    # Paths: Vendedor: productos: eliminar
+    path('eliminarProductoVendedor/<int:producto_id>/', views.eliminarProductoVendedor, name='eliminarProductoVendedor'),
+    # Paths: Vendedor: productos: modificar
+    path('modificarProductoVendedor/<int:producto_id>/', views.modificarProductoVendedor, name='modificarProductoVendedor'),
 
     #-----------------------------------------------------------------------------------------------------------------------#
     # Paths: Administracion:
