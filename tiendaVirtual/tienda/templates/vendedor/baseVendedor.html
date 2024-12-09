@@ -19,18 +19,18 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'homeVendedor' %}">Inicio</a>
+                        <a class="nav-link text-white mt-2" href="{% url 'homeVendedor' %}">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'inicioProductosVendedor' %}">Productos</a>
+                        <a class="nav-link text-white mt-2" href="{% url 'inicioProductosVendedor' %}">Productos</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'inicioPedidosVendedor' %}">Pedidos</a>
+                        <a class="nav-link text-white mt-2" href="{% url 'inicioPedidosVendedor' %}">Pedidos</a>
                     </li>
                     <li class="nav-item">
                         <form action="{% url 'logout' %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Cerrar sesión</button>
+                            <button type="submit" class="btn btn-danger btn-sm mt-2">Cerrar sesión</button>
                         </form>
                     </li>
                 </ul>
