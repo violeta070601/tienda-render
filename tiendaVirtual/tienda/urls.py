@@ -91,13 +91,13 @@ urlpatterns = [
     
     #-----------------------------------------------------------------------------------------------------------------------#
     # Paths: Pedido: Cliente
-    path('pedidos/<int:user_id>', views.verPedidoCliente, name='verPedidoCliente'),
+    path('pedidos/<int:user_id>', views.verPedido, name='verPedido'),
     # Paths: Pedido: Crear Pedido
     path('procesar_compra/<int:user_id>', views.crear_pedido, name='crear_pedido'),
     # Paths: Pedido: Pedido Confirmado
     path('pedidos/confirmar/<int:user_id>', views.confirmar_pedido, name='confirmar_pedido'),
     # Paths: Pedido: Detalles
-    path('pedidos/pedido_id=<int:pedido_id>', views.ver_detalles_pedido, name='verPedidoDetalles'),
+    path('pedido/<int:pedido_id>/detalles/<int:user_id>/', views.ver_detalles_pedido, name='verPedidoDetalles'),
     # Paths: Pedido: Cliente: Cancelar
     path('pedidos/cancelar/<int:pedido_id>/', views.cancelar_pedido, name='cancelarPedido'),
 

@@ -515,49 +515,97 @@ def actualizar_cantidad(request, item_id):
 
 #----------------------------------------------------------------------------------------------------------------#
 # Vista Pedido: Cliente: Consulta
-def verPedidoCliente(request, user_id):
+def verPedido(request, user_id):
+    # Obtener el usuario (vendedor) con el ID proporcionado
     usuario = get_object_or_404(Usuario, id=user_id)
-    pedidos = Pedido.objects.filter(usuario=usuario).exclude(Q(estatus__iexact='cancelado'))
-    print(f"Usuario rol original: {usuario.rol}")
+    
+    # Verificar si el usuario es un vendedor
+    print(f"Vendedor: {usuario.usuario} (ID: {usuario.id})")
+    
+    pedidos = Pedido.objects.filter(
+        detalles__producto__usuario=usuario  # Filtra por productos del vendedor
+    ).exclude(estatus='cancelado').distinct()
 
-    # Si rol es un objeto, accedemos a su atributo de texto
-    rol_normalizado = usuario.rol.nombre.strip().lower()
-    print(f"Usuario rol normalizado: {rol_normalizado}")
+    # Obtener los productos que el vendedor tiene registrados
+    productos_vendedor = Producto.objects.filter(usuario=usuario)
+    
+    detalles_pedidos = []
+
+    # Asignar un valor predeterminado para template_name
+    template_name = 'pedidos/basePedidos.html'  # Valor predeterminado para el template
 
     # Determinar el template según el rol del usuario
-    try:
-        if rol_normalizado == 'cliente':
-            template_name = 'pedidos/pedidosCliente/verPedido_Cliente.html'
-        elif rol_normalizado == 'administrador':
-            template_name = 'pedidos/pedidosAdministracion/verPedido_Administrador.html'
-        elif rol_normalizado == 'vendedor':
+    rol_normalizado = usuario.rol.nombre.strip().lower()
+    if rol_normalizado == 'cliente':
+        template_name = 'pedidos/pedidosCliente/verPedido_Cliente.html'
+    elif rol_normalizado == 'administrador':
+        template_name = 'pedidos/pedidosAdministracion/verPedido_Administrador.html'
+    elif rol_normalizado == 'vendedor':
+        print(f"Productos del vendedor: {productos_vendedor.count()} encontrados.")
+        print(f"Pedidos del vendedor: {pedidos.count()} encontrados.")
+        for pedido in pedidos:
+            print(f"Revisando detalles del pedido {pedido.id}")
+
+            # Filtrar los detalles del pedido donde el producto pertenece al vendedor
+            detalles_pedido_vendedor = pedido.detalles.filter(producto__usuario=usuario)
+
+            # Si existen detalles de ese pedido que corresponden al vendedor, los añadimos
+            if detalles_pedido_vendedor.exists():
+                detalles_pedidos.append(detalles_pedido_vendedor)
+                print(f"Pedido {pedido.id} tiene {detalles_pedido_vendedor.count()} productos del vendedor.")
+            else:
+                print(f"Pedido {pedido.id} no tiene productos del vendedor.")
+
+        # Comprobar si se obtuvieron detalles de pedidos
+        if detalles_pedidos:
+            print(f"Se encontraron {len(detalles_pedidos)} pedidos con productos del vendedor.")
             template_name = 'pedidos/pedidosVendedor/verPedido_Vendedor.html'
         else:
-            template_name = 'pedidos/basePedidos.html'
+            print("No se encontraron detalles de pedidos con productos del vendedor.")
+    
+    return render(request, template_name, {
+        'usuario': usuario,
+        'pedidos': pedidos,
+        'productos_vendedor': productos_vendedor,  # Productos del vendedor
+        'detalles_pedidos': detalles_pedidos,  # Detalles de los pedidos que corresponden al vendedor
+    })
 
-        print(f"Usando template: {template_name}")
-        return render(request, template_name, {
-            'usuario': usuario,
-            'pedidos': pedidos,
-        })
-    except Exception as e:
-        print(f"Error al renderizar el template: {e}")
-        return redirect('homeVendedor')
 
 
 # Vista Pedido: Cliente: Detalles
-def ver_detalles_pedido(request, pedido_id):
+def ver_detalles_pedido(request, pedido_id, user_id):
     # Obtener el pedido usando el ID
     pedido = get_object_or_404(Pedido, id=pedido_id)
-
+    
+    # Obtener el usuario con el ID proporcionado
+    usuario = get_object_or_404(Usuario, id=user_id)
+    
     # Obtener los detalles de este pedido
-    detalles = pedido.detalles.all()  # Relación con DetallePedido
+    detalles = pedido.detalles.all()
 
-    # Renderizar la plantilla con los detalles del pedido
-    return render(request, 'pedidos/verDetallePedido.html', {
+    print(f"Usuario rol original: {usuario.rol}")
+
+    # Normalizar el rol
+    rol_normalizado = usuario.rol.nombre.strip().lower()
+    print(f"Usuario rol normalizado: {rol_normalizado}")
+
+    if rol_normalizado == 'cliente':
+        template_name = 'pedidos/pedidosCliente/verDetallePedido_Cliente.html'
+    elif rol_normalizado == 'administrador':
+        template_name = 'pedidos/pedidosAdministracion/verDetallePedido_Administrador.html'
+    elif rol_normalizado == 'vendedor':
+        template_name = 'pedidos/pedidosVendedor/verDetallePedido_Vendedor.html'
+    else:
+        print("Rol no encontrado.")
+        template_name = 'pedidos/baseDetallePedido.html'
+
+    print(f"Usando template: {template_name}")
+    return render(request, template_name, {
+        'usuario': usuario,
         'pedido': pedido,
-        'detalles': detalles
+        'detalles': detalles,
     })
+
 
 # Vista Pedido: Cliente: Cancelar
 def cancelar_pedido(request, pedido_id):
@@ -576,7 +624,7 @@ def cancelar_pedido(request, pedido_id):
     user_id = pedido.usuario.id
 
     # Redirigir a la página de verPedidoCliente
-    return redirect('verPedidoCliente', user_id=user_id)
+    return redirect('verPedido', user_id=user_id)
 
 # Visto Pedido: Crear Pedido
 def crear_pedido(request, user_id):
@@ -629,7 +677,7 @@ def confirmar_pedido(request, user_id):
         pedido.save()
 
         messages.success(request, "Pedido confirmado con éxito.")
-        return redirect('verPedidoCliente', user_id=usuario.id)
+        return redirect('verPedido', user_id=usuario.id)
 
     # Si el método no es POST, mostrar la página de confirmación
     return render(request, 'pedidos/confirmarPedido.html', {
