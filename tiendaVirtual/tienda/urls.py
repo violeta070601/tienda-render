@@ -15,6 +15,11 @@ urlpatterns = [
     # Paths: logout
     path('logout/', views.logout_view, name='logout'),
 
+    # Paths: Cuenta: Home
+    path('cuenta/<int:user_id>/', views.CuentaHome, name='cuentaHome'),
+    # Paths Cuenta: direccion
+    path('cuenta/direcciones/agregar/<int:user_id>', views.crearDireccion, name='crearDireccion'),
+
     #-----------------------------------------------------------------------------------------------------------------------#
     # Paths: Vendedor
     path('homeVendedor/', views.homeVendedor, name='homeVendedor'),  
@@ -69,14 +74,12 @@ urlpatterns = [
     
     #-----------------------------------------------------------------------------------------------------------------------#
     # Paths: Cliente
-    path('homeCliente/', views.homeCliente, name='homeCliente'), 
+    path('home/', views.homeCliente, name='homeCliente'), 
     # Paths: Cliente: registro:           
     path('registroCliente/', views.registro_clientes_view, name='registro_clientes'),       #URL para entrar al registro de clientes
     path('api/registrar_cliente/', views.registrar_cliente, name='registrar_cliente'),
     # Paths: Cliente: Pedidos: Home
     path('ClientePedidosHome/', views.ClientePedidosHome, name='ClientePedidosHome'),
-    # Paths: Cliente: Productos: Home
-    path('ClienteProductoHome/', views.ClienteProductosHome, name='ClienteProductosHome'),
 
     #-----------------------------------------------------------------------------------------------------------------------#
     # Paths: Carrito
@@ -86,4 +89,17 @@ urlpatterns = [
     path('ClienteProductoHome/', views.seguir_comprando, name='seguir-comprando'),
     path('carrito/actualizar/<int:item_id>/', views.actualizar_cantidad, name='actualizar_cantidad'),
     
+    #-----------------------------------------------------------------------------------------------------------------------#
+    # Paths: Pedido: Cliente
+    path('pedidos/<int:user_id>', views.verPedidoCliente, name='verPedidoCliente'),
+    # Paths: Pedido: Crear Pedido
+    path('procesar_compra/<int:user_id>', views.crear_pedido, name='crear_pedido'),
+    # Paths: Pedido: Pedido Confirmado
+    path('pedidos/confirmar/<int:user_id>', views.confirmar_pedido, name='confirmar_pedido'),
+    # Paths: Pedido: Detalles
+    path('pedidos/pedido_id=<int:pedido_id>', views.ver_detalles_pedido, name='verPedidoDetalles'),
+    # Paths: Pedido: Cliente: Cancelar
+    path('pedidos/cancelar/<int:pedido_id>/', views.cancelar_pedido, name='cancelarPedido'),
+
+    path('prueba/', views.prueba_confirmar_pedido, name='prueba_confirmar_pedido')
 ]

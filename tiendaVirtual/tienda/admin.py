@@ -1,9 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Usuario, Rol, Categoria, Producto, Carrito, CarritoItems
+from .models import Usuario, Rol, Categoria, Producto, Carrito, CarritoItems, Pedido, DetallePedido, Direccion
 
 admin.site.register(Carrito)
 admin.site.register(CarritoItems)
+admin.site.register(DetallePedido)
+admin.site.register(Pedido)
+admin.site.register(Direccion)
 
 @admin.register(Usuario)
 class CustomUserAdmin(UserAdmin):
@@ -42,7 +45,7 @@ class CategoriaAdmin(admin.ModelAdmin):
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     # Campos que se muestran en la lista de productos
-    list_display = ('id', 'nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario')
+    list_display = ('id', 'nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario', 'is_active')
     # Campos que puedes buscar en el panel de administración
     search_fields = ('nombre', 'descripcion', 'categoria__nombre', 'usuario__usuario')
     # Filtros para facilitar la búsqueda en el panel de administración
@@ -51,12 +54,12 @@ class ProductoAdmin(admin.ModelAdmin):
     ordering = ('nombre',)
     # Campos que se mostrarán en los formularios del admin para modificar un producto
     fieldsets = (
-        (None, {'fields': ('nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario')}),
+        (None, {'fields': ('nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario', 'is_active')}),
     )
     # En el caso de agregar un producto, se mostrarán estos campos
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario'),
+            'fields': ('nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario', 'is_active'),
         }),
     )

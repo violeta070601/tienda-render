@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Rol, Usuario, Categoria, Producto, Carrito, CarritoItems
+from .models import Rol, Usuario, Categoria, Producto, Carrito, CarritoItems, Direccion, Pedido, DetallePedido
 
 # Serializer para el modelo Rol
 class RolSerializer(serializers.ModelSerializer):
@@ -54,14 +54,13 @@ class UsuarioSerializer(serializers.ModelSerializer):
 
         return user
 
-    
-
 # Serializer para el modelo Categoria
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
         fields = ['id', 'nombre', 'descripcion']
 
+# Serializer: Productos
 class ProductoSerializer(serializers.ModelSerializer):
     # Usamos PrimaryKeyRelatedField para solo mostrar el ID de la categoria y usuario
     categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())
@@ -71,6 +70,7 @@ class ProductoSerializer(serializers.ModelSerializer):
         model = Producto
         fields = ['id', 'nombre', 'descripcion', 'costo', 'stock', 'categoria', 'usuario']
 
+# Serializer Carrito: Items
 class CarritoItemsSerializer(serializers.ModelSerializer):
     producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
 
@@ -78,7 +78,7 @@ class CarritoItemsSerializer(serializers.ModelSerializer):
         model = CarritoItems
         fields = ['id', 'carrito', 'producto', 'cantidad']
 
-# Serializer para Carrito
+# Serializer Carrito: Carrito
 class CarritoSerializer(serializers.ModelSerializer):
     items = CarritoItemsSerializer(many=True, read_only=True)
 
@@ -89,3 +89,26 @@ class CarritoSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         carrito, created = Carrito.objects.get_or_create(usuario=validated_data['usuario'])
         return carrito
+    
+class DireccionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Direccion
+        fields = ['id', 'usuario', 'codigoPostal', 'calle', 'noExt', 'referencia', 'ciudad', 'estado', 'es_principal']
+
+# Serializer para el Pedido
+class PedidoSerializer(serializers.ModelSerializer):
+    usuario = serializers.StringRelatedField()  # Devuelve el nombre de usuario en lugar de la referencia al usuario
+    direccion = DireccionSerializer()  # Incluye la información de la dirección en el pedido
+
+    class Meta:
+        model = Pedido
+        fields = ['id', 'fecha_pedido', 'fecha_entrega', 'estatus', 'usuario', 'direccion']
+
+# Serializer para el DetallePedido
+class DetallePedidoSerializer(serializers.ModelSerializer):
+    producto = ProductoSerializer()  # Incluye los detalles del producto
+    precio_total = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        model = DetallePedido
+        fields = ['id', 'pedido', 'producto', 'cantidad', 'precio_total']

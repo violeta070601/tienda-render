@@ -67,6 +67,7 @@ class Producto(models.Model):
     stock = models.IntegerField()
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)  # Relación con el usuario que da de alta
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nombre
@@ -100,3 +101,52 @@ class CarritoItems(models.Model):
     def get_total_price(self):
         """Obtiene el precio total para este elemento del carrito."""
         return self.producto.costo * self.cantidad
+
+# Modelo Direccion
+class Direccion(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    codigoPostal = models.CharField(max_length=10)
+    calle = models.CharField(max_length=255)
+    noExt = models.CharField(max_length=4)
+    referencia = models.CharField(max_length=255)
+    ciudad = models.CharField(max_length=100)
+    estado = models.CharField(max_length=100)
+    es_principal = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.calle} {self.noExt}, {self.ciudad}, {self.estado}, {self.codigoPostal}"
+    
+  # Modelo Pedido
+
+# Modelo Pedido
+class Pedido(models.Model):
+    fecha_pedido = models.DateTimeField(auto_now_add=True)  # Fecha en la que se realiza el pedido
+    fecha_entrega = models.DateTimeField()  # Fecha estimada de entrega
+    estatus = models.CharField(max_length=50, choices=[('pendiente', 'Pendiente'), ('enviado', 'Enviado'), ('entregado', 'Entregado'), ('cancelado', 'Cancelado')], default='pendiente')  # Estatus del pedido
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)  # Relación con el usuario que hace el pedido
+    direccion = models.ForeignKey(Direccion, on_delete=models.CASCADE)  # Relación con la dirección del pedido
+
+    def __str__(self):
+        return f"Pedido {self.id} - {self.usuario.usuario} - Estatus: {self.estatus} - Dirección: {self.direccion.calle}"
+
+# Modelo DetallePedido
+class DetallePedido(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='detalles')  # Relación con el Pedido
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)  # Relación con el Producto
+    cantidad = models.PositiveIntegerField()  # Cantidad de productos en el pedido (tomada de CarritoItems)
+    precio_total = models.DecimalField(max_digits=10, decimal_places=2)  # Precio total de este producto en el pedido
+
+    def __str__(self):
+        return f"Detalle {self.id} - Producto: {self.producto.nombre} - Cantidad: {self.cantidad} - Total: {self.precio_total}"
+
+    @classmethod
+    def crear_detalles_pedido(cls, carrito_items, pedido):
+        detalles = []
+        for item in carrito_items:
+            detalles.append(cls(
+                pedido=pedido,
+                producto=item.producto,
+                cantidad=item.cantidad,
+                precio_total=item.get_total_price()
+            ))
+        cls.objects.bulk_create(detalles)  # Crear todos los detalles de una vez

@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from .models import Rol, Usuario, Categoria, Producto, Carrito, CarritoItems
-from .serializers import RolSerializer, UsuarioSerializer, CategoriaSerializer, ProductoSerializer
+from .models import Rol, Usuario, Categoria, Producto, Carrito, CarritoItems, Direccion, Pedido, DetallePedido
+from .serializers import RolSerializer, UsuarioSerializer, CategoriaSerializer, ProductoSerializer, DireccionSerializer
 from django.contrib.auth import logout
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
@@ -15,7 +15,8 @@ from rest_framework import status
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.urls import reverse
-from django.db.models import Count
+from django.db.models import Count, Q
+from django.utils import timezone
 
 # ViewSet para el modelo Rol
 class RolViewSet(viewsets.ModelViewSet):
@@ -67,6 +68,58 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+# Vista Cuenta: home
+def CuentaHome(request, user_id):
+    usuario = get_object_or_404(Usuario, id=user_id)
+    direcciones = Direccion.objects.filter(usuario=usuario)
+    direccion_principal = direcciones.filter(es_principal=True).first()  # Obtiene la dirección principal, si existe
+    return render(request, 'cuenta/homeCuenta.html', {
+        'usuario': usuario,
+        'direcciones': direcciones,
+        'direccion_principal': direccion_principal,
+        'selected_direccion_id': direccion_principal.id if direccion_principal else None
+    })
+
+# Vista Cuenta: direccion
+def crearDireccion(request, user_id):
+    usuario = get_object_or_404(Usuario, id=user_id)
+    # Verificar que la solicitud sea POST
+    if request.method == 'POST':
+        usuario = request.user  # Asumiendo que el usuario autenticado está relacionado con el modelo `Usuario`
+        
+        # Obtener los datos del formulario
+        codigo_postal = request.POST.get('codigoPostal')
+        calle = request.POST.get('calle')
+        no_ext = request.POST.get('noExt')
+        referencia = request.POST.get('referencia')
+        ciudad = request.POST.get('ciudad')
+        estado = request.POST.get('estado')
+        es_principal = request.POST.get('es_principal') == 'True'
+
+        # Si la dirección es principal, desmarcar las demás direcciones principales del usuario
+        if es_principal:
+            Direccion.objects.filter(usuario=usuario, es_principal=True).update(es_principal=False)
+
+        # Crear la nueva dirección
+        nueva_direccion = Direccion(
+            usuario=usuario,
+            codigoPostal=codigo_postal,
+            calle=calle,
+            noExt=no_ext,
+            referencia=referencia,
+            ciudad=ciudad,
+            estado=estado,
+            es_principal=es_principal
+        )
+        nueva_direccion.save()  # Guardar en la base de datos
+
+        # Agregar un mensaje de éxito
+        print('¡La dirección ha sido agregada exitosamente!')
+        return redirect('cuentaHome', user_id=usuario.id)
+
+    # Si no es POST, mostrar el formulario
+    return redirect('cuentaHome', user_id=usuario.id)  # Proporciona el user_id
 
 
 #----------------------------------------------------------------------------------------------------------------#
@@ -280,7 +333,8 @@ def crearProductoVendedor(request):
                 costo=costo,
                 stock=stock,
                 categoria_id=categoria_id,
-                usuario_id=request.user.id
+                usuario_id=request.user.id,
+                is_active=True
             )
             return redirect('inicioProductosVendedor')  # Redirigir a una lista de productos (ajustar según necesidad)
         except Categoria.DoesNotExist:
@@ -348,7 +402,12 @@ def inicioPedidosVendedor(request):
 #Vista Clientes: home
 @login_required
 def homeCliente(request):
-    return render(request, 'cliente/inicioCliente.html', {'user': request.user})
+    #return render(request, 'cliente/inicioCliente.html', {'user': request.user})
+    #Obtener todas las categorías
+        productos = Producto.objects.all()
+
+        #Renderizar la página con las categorías
+        return render(request, 'cliente/inicioCliente.html', {'productos': productos})
 
 # Vista Clientes: registro
 def registro_clientes_view(request):
@@ -371,15 +430,7 @@ def registrar_cliente(request):
         serializer.save()
         return redirect('login')  # Redirige a la vista del login
     return Response(serializer.errors, status=400)
-
-# Vista Clientes: productos: consulta
-def ClienteProductosHome(request):
-        #Obtener todas las categorías
-        productos = Producto.objects.all()
-
-        #Renderizar la página con las categorías
-        return render(request, 'cliente/productosCliente/inicioProductosCliente.html', {'productos': productos})
-
+    
 # Vista Clientes: pedidos: home
 def ClientePedidosHome(request):
     return render(request, 'cliente/pedidosCliente/inicioPedidosCliente.html', {'user': request.user})
@@ -401,18 +452,39 @@ def agregar_a_carrito(request, producto_id):
         carrito_item.cantidad += 1
         carrito_item.save()
 
-    return redirect('ClienteProductosHome')  # Cambia 'productos' por el nombre del URL de tus productos.
+    return redirect('homeCliente')  # Cambia 'productos' por el nombre del URL de tus productos.
  # Vista Carrito: seguir comprando
 
+# Vista Carrito: seguir comprando
 def seguir_comprando(request):
-    return redirect('ClienteProductosHome')
+    return redirect('homeCliente')
 
 # Vista carrito: ver carrito
 def ver_carrito(request):
-    carrito = Carrito.objects.get(usuario=request.user)
-    cart_items = carrito.items.all()
-    total_price = carrito.get_total_price()
-    return render(request, 'carrito/carrito.html', {'cart_items': cart_items, 'total_price': total_price})
+    try:
+        # Intentamos obtener el carrito del usuario
+        carrito = Carrito.objects.get(usuario=request.user)
+        cart_items = carrito.items.all()
+
+        # Verificamos si el carrito tiene elementos
+        if cart_items.exists():
+            total_price = carrito.get_total_price()
+        else:
+            total_price = 0  # Si no hay productos, el total es 0
+
+    except Carrito.DoesNotExist:
+        # Si el carrito no existe, mostramos un mensaje y asignamos un carrito vacío
+        carrito = None
+        cart_items = []
+        total_price = 0
+        messages.info(request, "Tu carrito está vacío.")
+    
+    # Renderizamos la página con el carrito (vacío o con productos)
+    return render(request, 'carrito/carrito.html', {
+        'carrito': carrito,
+        'cart_items': cart_items,
+        'total_price': total_price
+    })
 
 # Vista Carrito: Producto: drop
 def eliminar_del_carrito(request, item_id):
@@ -440,3 +512,112 @@ def actualizar_cantidad(request, item_id):
         return redirect('carrito')  # Redirigimos al carrito con la cantidad actualizada
 
     return redirect('carrito')
+
+#----------------------------------------------------------------------------------------------------------------#
+# Vista Pedido: Cliente: Consulta
+def verPedidoCliente(request, user_id):
+    # Obtener el usuario con el user_id proporcionado en la URL
+    usuario = get_object_or_404(Usuario, id=user_id)
+    
+    # Filtrar los pedidos del usuario
+    pedidos = Pedido.objects.filter(usuario=usuario).exclude(Q(estatus__iexact='cancelado'))
+
+    return render(request, 'pedidos/verPedido.html', {
+        'usuario': usuario,
+        'pedidos': pedidos  # Asegúrate de usar el nombre 'pedidos'
+    })
+
+# Vista Pedido: Cliente: Detalles
+def ver_detalles_pedido(request, pedido_id):
+    # Obtener el pedido usando el ID
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    # Obtener los detalles de este pedido
+    detalles = pedido.detalles.all()  # Relación con DetallePedido
+
+    # Renderizar la plantilla con los detalles del pedido
+    return render(request, 'pedidos/verDetallePedido.html', {
+        'pedido': pedido,
+        'detalles': detalles
+    })
+
+# Vista Pedido: Cliente: Cancelar
+def cancelar_pedido(request, pedido_id):
+    # Obtener el pedido por ID
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    # Cambiar el estatus a 'cancelado'
+    if pedido.estatus.lower() != 'cancelado':# Verifica que no esté ya cancelado
+        pedido.estatus = 'Cancelado'
+        pedido.save()
+        messages.success(request, "El pedido ha sido cancelado exitosamente.")
+    else:
+        messages.warning(request, "Este pedido ya ha sido cancelado.")
+
+    # Obtener el user_id del usuario asociado al pedido
+    user_id = pedido.usuario.id
+
+    # Redirigir a la página de verPedidoCliente
+    return redirect('verPedidoCliente', user_id=user_id)
+
+# Visto Pedido: Crear Pedido
+def crear_pedido(request, user_id):
+    print("Entrando en la vista crear_pedido...")  # Debugging
+    usuario = get_object_or_404(Usuario, id=user_id)
+    carrito = Carrito.objects.get(usuario=request.user)
+    carrito_items = carrito.items.all()
+    #print("Carrito items:", carrito_items)  # Debugging
+    carrito_total = sum(item.get_total_price() for item in carrito_items)
+
+    # Verificar si el carrito está vacío
+    if not carrito_items:
+        print("Carrito vacío.")  # Debugging
+        messages.error(request, 'Tu carrito está vacío. No puedes proceder con la compra.')
+        return redirect('homeCliente')  # Redirigir a la página principal
+
+    print("Carrito tiene productos. Renderizando confirmarPedido.html...")  # Debugging
+    # Mostrar la página de confirmación
+    return render(request, 'pedidos/confirmarPedido.html', {'usuario': usuario, 'carrito_items': carrito_items, 'direcciones': usuario.direccion_set.all(), 'carrito_total': carrito_total})
+
+
+# Vista Pedido: Confirmar Pedido
+def confirmar_pedido(request, user_id):
+    usuario = get_object_or_404(Usuario, id=user_id)
+    carrito = Carrito.objects.get(usuario=request.user)
+    carrito_items = carrito.items.all()
+
+    if request.method == "POST":
+        direccion_id = request.POST.get("direccion")
+        direccion = get_object_or_404(usuario.direccion_set, id=direccion_id)
+
+        # Crear el pedido con la dirección seleccionada
+        pedido = Pedido.objects.create(
+            usuario=request.user,
+            fecha_pedido=timezone.now(),
+            fecha_entrega=None,
+            estatus='pendiente',
+            direccion=direccion
+        )
+
+        # Crear los detalles del pedido a partir de los elementos en el carrito
+        DetallePedido.crear_detalles_pedido(carrito_items, pedido)
+
+        # Limpiar el carrito después de la compra
+        carrito.clear_cart()
+
+        # Establecer una fecha de entrega
+        fecha_entrega = timezone.now() + timezone.timedelta(days=7)
+        pedido.fecha_entrega = fecha_entrega
+        pedido.save()
+
+        messages.success(request, "Pedido confirmado con éxito.")
+        return redirect('verPedidoCliente', user_id=usuario.id)
+
+    # Si el método no es POST, mostrar la página de confirmación
+    return render(request, 'pedidos/confirmarPedido.html', {
+        'usuario': usuario,
+        'carrito_items': carrito_items
+    })
+
+def prueba_confirmar_pedido(request):
+    return render(request, 'pedidos/confirmarPedido.html')
