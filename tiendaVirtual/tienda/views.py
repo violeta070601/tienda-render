@@ -516,19 +516,11 @@ def actualizar_cantidad(request, item_id):
 #----------------------------------------------------------------------------------------------------------------#
 # Vista Pedido: Cliente: Consulta
 def verPedido(request, user_id):
-    # Obtener el usuario (vendedor) con el ID proporcionado
+    # Obtener el usuario con el ID proporcionado
     usuario = get_object_or_404(Usuario, id=user_id)
-    
-    # Verificar si el usuario es un vendedor
-    print(f"Vendedor: {usuario.usuario} (ID: {usuario.id})")
-    
-    pedidos = Pedido.objects.filter(
-        detalles__producto__usuario=usuario  # Filtra por productos del vendedor
-    ).exclude(estatus='cancelado').distinct()
 
-    # Obtener los productos que el vendedor tiene registrados
-    productos_vendedor = Producto.objects.filter(usuario=usuario)
-    
+    print(f"Usuario: {usuario.usuario} (ID: {usuario.id}) (Rol: {usuario.rol})")
+
     detalles_pedidos = []
 
     # Asignar un valor predeterminado para template_name
@@ -536,39 +528,37 @@ def verPedido(request, user_id):
 
     # Determinar el template según el rol del usuario
     rol_normalizado = usuario.rol.nombre.strip().lower()
+
     if rol_normalizado == 'cliente':
-        template_name = 'pedidos/pedidosCliente/verPedido_Cliente.html'
-    elif rol_normalizado == 'administrador':
-        template_name = 'pedidos/pedidosAdministracion/verPedido_Administrador.html'
-    elif rol_normalizado == 'vendedor':
-        print(f"Productos del vendedor: {productos_vendedor.count()} encontrados.")
-        print(f"Pedidos del vendedor: {pedidos.count()} encontrados.")
+        pedidos = Pedido.objects.filter(usuario=usuario.id).exclude(estatus='cancelado')
+        print(f"Pedidos del Cliente: {pedidos.count()} encontrados.")
         for pedido in pedidos:
-            print(f"Revisando detalles del pedido {pedido.id}")
+            detalles_pedido_cliente = pedido.detalles.all()
+            if detalles_pedido_cliente.exists():
+                detalles_pedidos.append(detalles_pedido_cliente)
+                print(f"Pedido {pedido.id} tiene {detalles_pedido_cliente.count()} productos.")
+        template_name = 'pedidos/pedidosCliente/verPedido_Cliente.html'
 
-            # Filtrar los detalles del pedido donde el producto pertenece al vendedor
+    elif rol_normalizado == 'administrador':
+        pedidos = Pedido.objects.exclude(estatus='cancelado')
+        template_name = 'pedidos/pedidosAdministracion/verPedido_Administrador.html'
+
+    elif rol_normalizado == 'vendedor':
+        pedidos = Pedido.objects.filter(detalles__producto__usuario=usuario).exclude(estatus='cancelado').distinct()
+        print(f"Pedidos del Vendedor: {pedidos.count()} encontrados.")
+        for pedido in pedidos:
             detalles_pedido_vendedor = pedido.detalles.filter(producto__usuario=usuario)
-
-            # Si existen detalles de ese pedido que corresponden al vendedor, los añadimos
             if detalles_pedido_vendedor.exists():
                 detalles_pedidos.append(detalles_pedido_vendedor)
                 print(f"Pedido {pedido.id} tiene {detalles_pedido_vendedor.count()} productos del vendedor.")
-            else:
-                print(f"Pedido {pedido.id} no tiene productos del vendedor.")
+        template_name = 'pedidos/pedidosVendedor/verPedido_Vendedor.html'
 
-        # Comprobar si se obtuvieron detalles de pedidos
-        if detalles_pedidos:
-            print(f"Se encontraron {len(detalles_pedidos)} pedidos con productos del vendedor.")
-            template_name = 'pedidos/pedidosVendedor/verPedido_Vendedor.html'
-        else:
-            print("No se encontraron detalles de pedidos con productos del vendedor.")
-    
     return render(request, template_name, {
         'usuario': usuario,
         'pedidos': pedidos,
-        'productos_vendedor': productos_vendedor,  # Productos del vendedor
-        'detalles_pedidos': detalles_pedidos,  # Detalles de los pedidos que corresponden al vendedor
+        'detalles_pedidos': detalles_pedidos,
     })
+
 
 
 

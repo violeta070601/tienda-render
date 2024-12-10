@@ -42,7 +42,7 @@
                                 <td>{{ pedido.direccion.calle }} {{ pedido.direccion.noExt }}, {{ pedido.direccion.ciudad }}</td>
                                 <td>
                                     <!-- Botón para ver detalles del pedido -->
-                                    <a href="{% url 'verPedidoDetalles' pedido.id %}" class="btn btn-info">Ver Detalles</a>
+                                    <a href="{% url 'verPedidoDetalles' pedido.id usuario.id%}" class="btn btn-outline-info">Ver Detalles</a>
                                 </td>
                             </tr>
                         {% endfor %}
