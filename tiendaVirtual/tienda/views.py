@@ -378,37 +378,47 @@ def modificarProductoVendedor(request, producto_id):
 def eliminarProductoVendedor(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
 
-    # Accede a los productos relacionados del producto
-    productos = producto.producto_set.all()  # Obtén todos los productos de esa categoría
-
-    if productos.exists():
-        # Realiza algo con los productos (por ejemplo, mostrar un mensaje)
-        messages.error(request, f"El producto {producto.nombre} tiene productos asociados y no puede ser eliminada.")
-        return redirect('gestionarProductoVendedor')
-
     if request.method == 'POST':
-        producto.delete()  # Eliminar la categoría
-        messages.success(request, f"La categoría '{producto.nombre}' ha sido eliminada correctamente.")
-        return redirect('gestionarProductoVendedor')
+        # Marcar el producto como inactivo
+        producto.is_active = False
+        producto.save()
+        messages.success(request, f"El producto '{producto.nombre}' ha sido marcado como inactivo.")
+        return redirect('inicioProductosVendedor')
 
     return render(request, 'vendedor/productosVendedor/eliminarProductoVendedor.html', {'producto': producto})
+
 
 # Vista vendedor: pedidos: home
 def inicioPedidosVendedor(request):
     return render(request, 'vendedor/pedidosVendedor/inicioPedidosVendedor.html', {'user': request.user})
 
-
+@login_required
+def gestionarProductoVendedor(request):
+    productos = Producto.objects.all()  # Obtén todos los productos
+    return render(request, 'vendedor/productosVendedor/gestionarProductoVendedor.html', {'productos': productos})
 #----------------------------------------------------------------------------------------------------------------#
 #Vista Clientes: home
 @login_required
 def homeCliente(request):
-    #return render(request, 'cliente/inicioCliente.html', {'user': request.user})
-    #Obtener todas las categorías
-        productos = Producto.objects.all()
+    # Obtener todos los productos activos y categorías
+    productos = Producto.objects.filter(is_active=True)  # Filtrar productos activos
+    categorias = Categoria.objects.all()
 
-        #Renderizar la página con las categorías
-        return render(request, 'cliente/inicioCliente.html', {'productos': productos})
+    # Filtrar productos según la búsqueda
+    query = request.GET.get('search', '')
+    categoria_id = request.GET.get('categoria', '')
 
+    if query:
+        productos = productos.filter(
+            Q(nombre__icontains=query) | Q(descripcion__icontains=query)
+        )
+    if categoria_id:
+        productos = productos.filter(categoria_id=categoria_id)
+
+    return render(request, 'cliente/inicioCliente.html', {
+        'productos': productos,
+        'categorias': categorias,
+    })
 # Vista Clientes: registro
 def registro_clientes_view(request):
     return render(request, 'registros/registroCliente.html')

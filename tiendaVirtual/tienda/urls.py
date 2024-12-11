@@ -36,6 +36,7 @@ urlpatterns = [
     path('eliminarProductoVendedor/<int:producto_id>/', views.eliminarProductoVendedor, name='eliminarProductoVendedor'),
     # Paths: Vendedor: productos: modificar
     path('modificarProductoVendedor/<int:producto_id>/', views.modificarProductoVendedor, name='modificarProductoVendedor'),
+    path('gestionarProductoVendedor/', views.gestionarProductoVendedor, name='gestionarProductoVendedor'),
 
     #-----------------------------------------------------------------------------------------------------------------------#
     # Paths: Administracion:
