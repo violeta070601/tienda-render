@@ -50,7 +50,7 @@
                             <td>{{ detalle.producto.nombre }}</td>
                             <td>{{ detalle.cantidad }}</td>
                             <td>{{ detalle.precio_total }}</td>
-                            <td><a href="{% url 'verPedidoDetalles' detalle.pedido.id usuario.id%}" class="btn btn-outline-secondary">Detalles</td>
+                            <td><a href="{% url 'verPedidoDetalles' detalle.pedido.id usuario.id%}" class="btn btn-primary"><i class="fa-solid fa-circle-info"></i></td>
                         </tr>
                     {% endfor %}
                 {% endfor %}

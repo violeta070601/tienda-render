@@ -21,7 +21,9 @@
             <td>{{ cliente.correo }}</td>
             <td>{{ cliente.is_active|yesno:"Activo,Inactivo" }}</td>
             <td> 
-                <a href="{% url 'eliminarClientesAdmin' cliente.id %}"><button>Eliminar</button></a>
+                <a href="{% url 'eliminarClientesAdmin' cliente.id %}">
+                    <button class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>
+                </a>
             </td>
         </tr>
         {% empty %}

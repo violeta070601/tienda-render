@@ -14,7 +14,7 @@
     {% endif %}
   </div>
 
-  <a href="{% url 'crearCategoriaAdmin' %}" class="btn btn-primary">Crear Nueva Categoría</a>
+  <a href="{% url 'crearCategoriaAdmin' %}" class="btn btn-primary"><i class="fa-solid fa-circle-plus"></i></a>
 
   <h3 class="mt-4">Categorías Existentes</h3>
   <table class="table table-bordered">
@@ -36,10 +36,10 @@
             <td>{{ categoria.productos_count }}</td> <!-- Conteo de productos -->
             <td>
                 <a href="{% url 'modificarCategoriasAdmin' categoria.id %}">
-                    <button class="btn btn-warning" style="margin-right: 4px;">Modificar</button>
+                    <button class="btn btn-warning" style="margin-right: 4px;"><i class="fa-solid fa-sliders"></i></button>
                 </a>
                 <a href="{% url 'eliminarCategoriaAdmin' categoria.id %}">
-                    <button class="btn btn-danger">Eliminar</button>
+                    <button class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>
                 </a>
             </td>
         </tr>

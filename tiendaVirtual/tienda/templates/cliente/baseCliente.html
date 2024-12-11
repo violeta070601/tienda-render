@@ -25,27 +25,33 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'homeCliente' %}">Inicio</a>
+                        <form action="{% url 'homeCliente' %}" method="get" class="d-inline">
+                            <button type="submit" class="btn btn-primary btn-sm mx-1">Inicio</button>
+                        </form>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'cuentaHome' user.id%}">Cuenta</a>
+                        <form action="{% url 'cuentaHome' user.id%}" method="get" class="d-inline">
+                            <button type="submit" class="btn btn-primary btn-sm mx-1">Cuenta</button>
+                        </form>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'verPedido' user.id%}">Pedidos</a>
-                    </li>
-                    <li>
-                        <a class="nav-link text-white" href="{% url 'carrito' %}">
-                            <i class="fa-sharp fa-solid fa-cart-shopping"></i>
-                        </a>
+                        <form action="{% url 'verPedido' user.id%}" method="get" class="d-inline">
+                            <button type="submit" class="btn btn-primary btn-sm mx-1">Pedidos</button>
+                        </form>
                     </li>
                     <li class="nav-item">
-                        <form action="{% url 'logout' %}" method="post">
+                        <form action="{% url 'carrito' %}" method="get" class="d-inline">
+                            <button type="submit" class="btn btn-primary btn-sm mx-1"><i class="fa-sharp fa-solid fa-cart-shopping"></i></button>
+                        </form>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post" class="d-inline">
                             {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm">Cerrar sesión</button>
+                            <button type="submit" class="btn btn-danger btn-sm mx-1"><i class="fa-solid fa-right-from-bracket"></i></button>
                         </form>
                     </li>
                 </ul>
-            </div>
+            </div>            
         </div>
     </nav>
 
