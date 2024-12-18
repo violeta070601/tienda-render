@@ -255,6 +255,18 @@ def eliminarCategoriaAdmin(request, categoria_id):
 
     return render(request, 'administrador/categoriasAdmin/eliminarCategoriasAdmin.html', {'categoria': categoria})
 
+#Vista administracion: pedidos: consulta
+def inicioPedidosAdmin(request):
+    # Obtener todos los pedidos que no estén cancelados
+    pedidos = Pedido.objects.exclude(estatus='cancelado')
+
+    print(f"Pedidos totales (sin cancelados): {pedidos.count()} encontrados.")
+
+    # Renderizar la plantilla específica del administrador
+    return render(request, 'administrador/pedidosAdmin/inicioPedidosAdmin.html', {
+        'user': request.user,
+        'pedidos': pedidos,  # Pasamos los pedidos al template
+    })
 
 # ---------------------------------------------------------------------------------------------------------------#
 # Vista vendedor: home
