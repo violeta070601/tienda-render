@@ -72,7 +72,7 @@ urlpatterns = [
 
     # Paths: Administracion: Pedidos: home
     path('inicioPedidosAdmin/', views.inicioPedidosAdmin, name='inicioPedidosAdmin'),
-    
+    path('detallePedidoAdmin/<int:pedido_id>/', views.detallePedidoAdmin, name='detallePedidoAdmin'),
     #-----------------------------------------------------------------------------------------------------------------------#
     # Paths: Cliente
     path('home/', views.homeCliente, name='homeCliente'), 
