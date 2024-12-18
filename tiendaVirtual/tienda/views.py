@@ -268,6 +268,22 @@ def inicioPedidosAdmin(request):
         'pedidos': pedidos,  # Pasamos los pedidos al template
     })
 
+#Vista administracion: pedidos: detalle
+def detallePedidoAdmin(request, pedido_id):
+    # Obtener el pedido específico o devolver un 404 si no existe
+    pedido = get_object_or_404(Pedido, pk=pedido_id)
+
+    # Obtener los detalles asociados a ese pedido
+    detalles = DetallePedido.objects.filter(pedido=pedido)
+
+    print(f"Detalles del Pedido {pedido.id}: {detalles.count()} productos encontrados.")
+
+    # Renderizar la plantilla con la información del pedido y sus detalles
+    return render(request, 'administrador/pedidosAdmin/detallePedidosAdmin.html', {
+        'pedido': pedido,
+        'detalles': detalles,
+    })
+
 # ---------------------------------------------------------------------------------------------------------------#
 # Vista vendedor: home
 @login_required
