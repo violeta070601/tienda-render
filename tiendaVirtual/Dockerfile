@@ -7,11 +7,11 @@ ENV PYTHONUNBUFFERED=1
 
 # Instalar dependencias del sistema necesarias para mysqlclient y otros paquetes
 RUN apt-get update && apt-get install -y \
-  default-libmysqlclient-dev \
-  build-essential \
-  pkg-config \
-  gcc \
-  && apt-get clean
+    default-libmysqlclient-dev \
+    build-essential \
+    pkg-config \
+    gcc \
+    && apt-get clean
 
 # Establecer el directorio de trabajo en el contenedor
 WORKDIR /app

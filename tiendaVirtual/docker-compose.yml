@@ -6,14 +6,18 @@ services:
     container_name: mysql-db
     restart: always
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_DATABASE: tiendaVirtual
+      #MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_USER: tienda
+      MYSQL_PASSWORD: Adavid02
+      MYSQL_DATABASE: tiendavirtual
     ports:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./db-init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       retries: 5
       start_period: 30s
@@ -22,7 +26,12 @@ services:
     build: .
     container_name: django-app
     restart: always
-    command: python manage.py runserver 0.0.0.0:8000
+    command: 
+      sh -c "
+        python manage.py migrate &&
+        python manage.py loaddata tienda_rol.json &&
+        python manage.py runserver 0.0.0.0:8000
+      "
     volumes:
       - .:/app
     ports:
