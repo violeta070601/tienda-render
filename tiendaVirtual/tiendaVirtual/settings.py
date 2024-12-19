@@ -80,10 +80,10 @@ WSGI_APPLICATION = 'tiendaVirtual.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tiendaVirtual',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
+        'NAME': 'tiendavirtual',
+        'USER': 'tienda',
+        'PASSWORD': 'Adavid02',
+        'HOST': 'mysql-db',
         'PORT': '3306',
     }
 }
