@@ -83,7 +83,7 @@ DATABASES = {
         'NAME': 'tiendavirtual',
         'USER': 'tienda',
         'PASSWORD': 'Adavid02',
-        'HOST': 'mysql-db',
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }
